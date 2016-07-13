@@ -7,18 +7,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:openDrawer="start">
 
-    <RelativeLayout
-        android:id="@+id/content"
+    <include
+        layout="@layout/activity_with_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <include
-            android:id="@+id/app_bar_base"
-            layout="@layout/app_bar_base"/>
-    </RelativeLayout>
-
+        android:layout_height="match_parent"/>
 
     <android.support.design.widget.NavigationView
         android:id="@+id/nav_view"

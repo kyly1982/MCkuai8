@@ -6,19 +6,19 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
+import android.support.v7.widget.AppCompatImageButton;
+import android.support.v7.widget.AppCompatTextView;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.FrameLayout;
 
 import com.mckuai.imc.R;
 
 public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    protected Toolbar mToolbar;
 
+    private AppCompatImageButton mUserCover;
+    private AppCompatTextView mUserName;
+    private AppCompatTextView mUserLevel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +26,13 @@ public class MainActivity extends BaseActivity
         setContentView(R.layout.content_main);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (null == mUserCover){
+            initView();
+        }
+    }
 
     /**
      * 设置内容视图，将指定的内容视图添加到视图中
@@ -34,18 +41,7 @@ public class MainActivity extends BaseActivity
      */
     @Override
     public void setContentView(@LayoutRes int contentViewLayoutResID) {
-        super.setContentView(R.layout.activity_base_withsildingmenu);
-        //添加内容视图
-        FrameLayout mContentRoot =  (FrameLayout)findViewById(R.id.content);
-        if (null != mContentRoot && (0 < contentViewLayoutResID)){
-            View contentView = LayoutInflater.from(this).inflate(contentViewLayoutResID,mContentRoot,false);
-            if (null != contentView){
-                mContentRoot.addView(contentView);
-            }
-        }
-
-        //设置toolbar
-        setToolbar(R.id.toolbar);
+        super.setContentView(contentViewLayoutResID);
 
         //设置侧边栏
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -57,6 +53,7 @@ public class MainActivity extends BaseActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
     }
+
 
     @Override
     public void onBackPressed() {
@@ -96,24 +93,75 @@ public class MainActivity extends BaseActivity
         // Handle navigation view item clicks here.
         switch (item.getItemId()){
             case R.id.nav_search:
+                showSearch();
                 break;
             case R.id.nav_package:
+                showPackage();
                 break;
             case R.id.nav_setting:
+                showSetting();
                 break;
             case R.id.nav_logout:
+                logout();
                 break;
             case R.id.nav_share:
+                shareApp();
                 break;
             case R.id.nav_prise:
+                priseApp();
                 break;
             case R.id.nav_upgread:
+                checkUpgread(false);
                 break;
         }
-
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    private void initView(){
+
+    }
+
+    private void showSearch(){
+
+    }
+
+    private void showPackage(){
+
+    }
+
+    private void showSetting(){
+
+    }
+
+    private void showUserCenter(){
+
+    }
+
+    private void shareApp(){
+
+    }
+
+    private void priseApp(){
+
+    }
+
+    private void checkUpgread(boolean isSlience){
+
+    }
+
+    private void logout(){
+
+    }
+
+    private void logIn(){
+
+    }
+
+    private void showUserInfo(){
+
+    }
+
 }

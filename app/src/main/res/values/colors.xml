@@ -3,4 +3,9 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <!--snackbar动作文本色彩-->
+    <color name="msg_normal">#00FF00</color>
+    <color name="msg_warning">#FFFF00</color>
+    <color name="msg_error">#FF0000</color>
 </resources>
