@@ -1,4 +1,4 @@
-package com.mckuai.imc.Activity;
+package com.mckuai.imc.Base;
 
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
@@ -19,6 +19,7 @@ import com.mckuai.imc.R;
 public class BaseActivity extends AppCompatActivity {
     protected AppCompatTextView mTitle;
     protected Toolbar mToolbar;
+    protected MCKuai mApplication = MCKuai.instence;
     private FrameLayout mContentRootView;
 
     @Override
@@ -43,7 +44,7 @@ public class BaseActivity extends AppCompatActivity {
 
     @Override
     public void setContentView(@LayoutRes int contentViewLayoutResID) {
-        if (this instanceof MainActivity){
+        if (getLocalClassName().equals("Activity.MainActivity")){
             super.setContentView(R.layout.activity_with_sildingmenu);
         } else {
             super.setContentView(R.layout.activity_with_toolbar);
@@ -70,6 +71,7 @@ public class BaseActivity extends AppCompatActivity {
             getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+        mTitle = (AppCompatTextView) findViewById(R.id.toolbar_title);
     }
 
 

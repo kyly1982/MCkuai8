@@ -11,6 +11,7 @@ import android.support.v7.widget.AppCompatTextView;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.mckuai.imc.Base.BaseActivity;
 import com.mckuai.imc.R;
 
 public class MainActivity extends BaseActivity

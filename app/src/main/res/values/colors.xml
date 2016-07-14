@@ -8,4 +8,18 @@
     <color name="msg_normal">#00FF00</color>
     <color name="msg_warning">#FFFF00</color>
     <color name="msg_error">#FF0000</color>
+
+    <!--导航栏字体色彩-->
+    <color name="text_white">#FFFFFF</color>
+    <color name="text_green">#38CA44</color>
+
+    <!-- 边框色 -->
+    <color name="frame_darkgray">#EBEBEB</color>
+    <color name="frame_green">#04FF04</color>
+    <!-- 登录 -->
+    <color name="login_pressed">#30BB55</color>
+    <color name="login_normal">#38BE5C</color>
+
+    <color name="color_forum_normal">#302B26</color>
+    <color name="color_forum_selected">#31B765</color>
 </resources>
