@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RadioButton xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tv_name"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/selector_green_and_white"
+    android:button="@null"
+    android:checked="false"
+    android:clickable="true"
+    android:gravity="center"
+    android:singleLine="true"
+    android:textColor="@color/selector_white_and_grey">
+
+</RadioButton>

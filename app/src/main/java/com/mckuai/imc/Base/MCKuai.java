@@ -36,10 +36,6 @@ import io.rong.imkit.RongIM;
 import io.rong.imlib.RongIMClient;
 import okhttp3.OkHttpClient;
 
-//import com.tencent.tauth.Tencent;
-//import com.umeng.socialize.Config;
-//import com.umeng.socialize.PlatformConfig;
-
 
 /**
  * Created by kyly on 2016/1/18.
@@ -99,10 +95,6 @@ public class MCKuai extends Application {
             builder.connectTimeout(TIME_OUT, TimeUnit.MILLISECONDS)
                     .retryOnConnectionFailure(true);
             OkHttpUtils.initClient(builder.build());
-           /*
-           移除无用组件
-           OkHttpFinalConfiguration.Builder builder1 = new OkHttpFinalConfiguration.Builder().setRetryOnConnectionFailure(false);
-            OkHttpFinal.getInstance().init(builder1.build());*/
         }
     }
 

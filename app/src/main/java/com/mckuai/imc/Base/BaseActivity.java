@@ -1,5 +1,6 @@
 package com.mckuai.imc.Base;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.StringRes;
@@ -11,7 +12,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import com.mckuai.imc.Activity.LoginActivity;
 import com.mckuai.imc.R;
+import com.umeng.socialize.ShareAction;
+import com.umeng.socialize.UMShareListener;
+import com.umeng.socialize.bean.SHARE_MEDIA;
+import com.umeng.socialize.media.UMImage;
 
 /**
  * Created by kyly on 2016/7/12.
@@ -26,6 +32,7 @@ public class BaseActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
+
 
     @Override
     protected void onResume() {
@@ -75,6 +82,10 @@ public class BaseActivity extends AppCompatActivity {
     }
 
 
+    public void callLogin(int requestId) {
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivityForResult(intent, requestId);
+    }
 
 
     public void showMessage(@StringRes int msgResId, @StringRes int actionResid, View. OnClickListener actionClicklistener){
@@ -108,7 +119,62 @@ public class BaseActivity extends AppCompatActivity {
         snackbar.show();
     }
 
+    public void showMessage(String msg, String action, View.OnClickListener actionClickListener){
+        Snackbar snackbar = Snackbar.make(mContentRootView,msg ,Snackbar.LENGTH_SHORT);
+        if (null != action && null != actionClickListener){
+            snackbar.setAction(action,actionClickListener).setActionTextColor(getResources().getColor(R.color.msg_normal)).show();
+        }
+    }
 
+    public void showError(String msg, String action, View.OnClickListener actionClickListener){
+        Snackbar snackbar = Snackbar.make(mContentRootView,msg ,Snackbar.LENGTH_LONG);
+        if (null != action && null != actionClickListener){
+            snackbar.setAction(action,actionClickListener).setActionTextColor(getResources().getColor(R.color.msg_error)).show();
+        }
+    }
+
+    /**
+     * 分享
+     *
+     * @param title   分享的标题
+     * @param content 分享内容
+     * @param url     链拉地址
+     * @param image   图片
+     */
+    public void share(String title, String content, String url, UMImage image) {
+        SHARE_MEDIA[] displayList = new SHARE_MEDIA[]{
+                SHARE_MEDIA.WEIXIN_CIRCLE, SHARE_MEDIA.WEIXIN, SHARE_MEDIA.QQ, SHARE_MEDIA.QZONE
+        };
+        ShareAction action = new ShareAction(this).setDisplayList(displayList);
+        action.withTitle(title);
+        action.withText(content);
+        action.withTargetUrl(url);
+        action.setCallback(new UMShareListener() {
+            @Override
+            public void onResult(SHARE_MEDIA share_media) {
+                //closeSlidmenu();
+            }
+
+            @Override
+            public void onError(SHARE_MEDIA share_media, Throwable throwable) {
+                if (null != throwable) {
+                    showMessage(throwable.getLocalizedMessage(), null, null);
+                } else {
+                    showMessage("分享到"+share_media.toString()+"失败，原因未知",null,null);
+                }
+                //closeSlidmenu();
+            }
+
+            @Override
+            public void onCancel(SHARE_MEDIA share_media) {
+                //closeSlidmenu();
+            }
+        });
+        if (null != image) {
+            action.withMedia(image);
+        }
+        action.open();
+    }
 
 
 

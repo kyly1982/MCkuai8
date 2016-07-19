@@ -11,16 +11,76 @@ android {
         versionCode 50
         versionName "8.0"
     }
+
+    //方便调试分享用，必须在buildtypes配置前
+    signingConfigs {
+        config {
+            keyAlias '麦块我的世界盒子'
+            keyPassword 'youxigt888'
+            storeFile file('F:/Repository/imc.keystore')
+            storePassword 'ilovegt888'
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            //signingConfig signingConfigs.config
+        }
+
+        debug {
+            signingConfig signingConfigs.config
+            minifyEnabled false
         }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
     }
+
+    //百度定位需求
+    sourceSets {
+        main {
+            java.srcDirs = ['src/main/java', 'src/main/java-gen']
+        }
+    }
+
+    //针对不同的渠道打包
+    productFlavors {
+        mckuai_mckuai {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "mckuai_mckuai_V8", APP_NAME: "麦块我的世界盒子"]
+        }
+        mckuai_xiaomi {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "mckuai_xiaomi_V8", APP_NAME: "麦块我的世界盒子"]
+        }
+        mckuai_360 {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "mckuai_360_V8", APP_NAME: "麦块"]
+        }
+        mckuai_wandoujia {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "mckuai_wandoujia_V8", APP_NAME: "麦块我的世界盒子"]
+        }
+        mckuai_baidu {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "mckuai_baidu_V8", APP_NAME: "麦块"]
+        }
+        mckuai_tencent {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "mckuai_tencent_V8", APP_NAME: "麦块"]
+        }
+    }
+
+    //修改打包文件名
+    android.applicationVariants.all { variant ->
+        variant.outputs.each {
+            output ->
+                def outputFile = output.outputFile
+                if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                    def fileName = "${variant.productFlavors[0].name}-${defaultConfig.versionName}.apk"
+                    output.outputFile = new File(outputFile.parent, fileName)
+                }
+        }
+    }
+
+
 }
 
 dependencies {
@@ -36,7 +96,7 @@ dependencies {
     compile 'de.greenrobot:greendao:2.1.0'
     compile 'com.umeng.analytics:analytics:latest.integration'
     compile 'com.loopj.android:android-async-http:+'
-//    compile 'cn.finalteam:okhttpfinal:2.0.7'
+
     compile project(':IMKit')
     compile files('libs/BaiduLBS_Android.jar')
     compile files('libs/httpcore-4.4.1.jar')

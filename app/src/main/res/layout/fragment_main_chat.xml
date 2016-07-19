@@ -1,0 +1,27 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="true">
+
+
+
+    <!-- TODO: Update blank fragment layout -->
+    <com.malinskiy.superrecyclerview.SuperRecyclerView
+        android:id="@+id/conversationlist"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/color_white"
+        app:layout_empty="@layout/emptyview"
+        ></com.malinskiy.superrecyclerview.SuperRecyclerView>
+
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/unlogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:textColor="@color/textColorSecondary"
+        android:text="登录后才能使用聊天功能！" />
+
+</RelativeLayout>

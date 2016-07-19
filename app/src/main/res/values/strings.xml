@@ -28,6 +28,12 @@
     <string name="preferences_wa_ranking">WA_RANKING</string>
     <string name="preferences_leadtag">LEAD_TAG</string>
 
+    <!--数据库名称-->
+    <string name="dbname">MCData.db</string>
+    <!--空数据-->
+    <string name="emptyview_hint">暂时没有数据！</string>
+    <string name="hint_loading">正在加载！</string>
+
     <!--缓存-->
     <string name="cache_root">cache</string>
     <string name="imagecache_dir">image</string>
@@ -125,6 +131,30 @@
     <string name="tryReLogin">是否重新登录？</string>
     <string name="reLogin">重新登录</string>
 
+    <!--个人中心-->
+    <string name="usercenter_tag_userid">USER_ID</string>
+    <string name="usercenter_tag_user">USER_OBJECT</string>
+    <string name="usercenter_userlevel">LV %1$d</string>
+    <string name="cartoon">漫画</string>
+    <string name="community">社区</string>
+    <string name="friend">朋友</string>
+    <string name="message">消息</string>
+    <string name="dynamic">动态</string>
+    <string name="work">作品</string>
+    <string name="allMessage">全部</string>
+    <string name="atMessage">\@你</string>
+    <string name="systemMessage">系统消息</string>
+    <string name="replyYou">回复你的帖子</string>
+    <string name="atYou">\@了你</string>
+    <string name="replyPost">回复了</string>
+    <string name="createPost">创造了</string>
+    <string name="userId">USER_ID</string>
+    <string name="addtoPackage">加入背包</string>
+    <string name="makeChat">私聊</string>
+    <string name="preservation">保存</string>
+    <string name="cartoon_comment">评论了</string>
+    <string name="cartoon_prise">点赞了</string>
+
 
     <string name="action_settings">Settings</string>
     <string name="title_activity_main2">Main2Activity</string>
@@ -135,4 +165,12 @@
     <string name="nav_video">视频</string>
     <string name="nav_chat">聊天</string>
     <string name="nav_community">社区</string>
+
+    <!--社区首页-->
+    <string name="community_postlable_new">最新</string>
+    <string name="community_postlable_essence">精华</string>
+    <string name="community_postlable_top">推荐</string>
+
+    <!--帖子详情-->
+    <string name="tag_post">TAG_POST</string>
 </resources>

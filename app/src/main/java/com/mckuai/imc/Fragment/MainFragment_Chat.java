@@ -15,34 +15,28 @@ import android.view.ViewGroup;
 import com.malinskiy.superrecyclerview.SuperRecyclerView;
 import com.mckuai.imc.Activity.LoginActivity;
 import com.mckuai.imc.Adapter.ConversationAdapter;
-import com.mckuai.imc.Adapter.WaitUserAdapter;
 import com.mckuai.imc.Base.MCKuai;
 import com.mckuai.imc.Bean.Conversation;
 import com.mckuai.imc.Bean.User;
 import com.mckuai.imc.R;
-import com.mckuai.imc.Util.MCNetEngine;
 
 import java.util.ArrayList;
 
 import io.rong.imkit.RongIM;
 import io.rong.imlib.RongIMClient;
 
-public class MainFragment_Chat extends BaseFragment implements ConversationAdapter.OnItemClickListener, MCNetEngine.OnLoadRecommendUserListener, WaitUserAdapter.OnItemClickListener{
+public class MainFragment_Chat extends BaseFragment implements ConversationAdapter.OnItemClickListener{
     private ArrayList<Conversation> conversations;
     // private ArrayList<User> users;
-    private ArrayList<User> waitUsers;
     private View view;
     private SuperRecyclerView conversationList;
-    private SuperRecyclerView userList;
     private AppCompatTextView unloginHint;
     private ConversationAdapter adapter;
-    private WaitUserAdapter waitUserAdapter;
     private MCKuai application;
     private User user;
     //private boolean isRegReciver = false;
 
     public MainFragment_Chat() {
-        mTitleResId = R.string.fragment_chat;
         application = MCKuai.instence;
     }
 
@@ -89,32 +83,24 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
             initView();
         }
         if (!hidden) {
-
             showData();
-            showUser();
         }
     }
 
     private void initView() {
         conversationList = (SuperRecyclerView) view.findViewById(R.id.conversationlist);
-        userList = (SuperRecyclerView) view.findViewById(R.id.waituserlist);
         conversationList.getRecyclerView().setHasFixedSize(true);
-        userList.getRecyclerView().setHasFixedSize(true);
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         conversationList.setLayoutManager(manager);
         conversationList.hideProgress();
         conversationList.hideMoreProgress();
         RecyclerView.LayoutManager manager1 = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
-        userList.setLayoutManager(manager1);
         conversationList.setRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 getConversation();
             }
         });
-
-        userList.hideMoreProgress();
-        userList.hideProgress();
     }
 
     private void showData() {
@@ -139,17 +125,6 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
 
     }
 
-    private void showUser() {
-        //显示等待用户
-        if (null == waitUserAdapter) {
-            waitUserAdapter = new WaitUserAdapter(getActivity(), this);
-            application.netEngine.loadRecommendUser(getActivity(), application.isLogin() ? application.user.getId() : null, this);
-        } else {
-            userList.setAdapter(waitUserAdapter);
-            waitUserAdapter.setData(waitUsers);
-        }
-
-    }
 
     private void getConversation() {
         if (null != RongIM.getInstance() && null != RongIM.getInstance().getRongIMClient()) {
@@ -168,19 +143,7 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
                             tempUser = new User();
                             tempUser.setName(id);
                             conversation.setTarget(tempUser);
-                            application.netEngine.loadUserInfo(getActivity(), id, new MCNetEngine.OnLoadUserInfoResponseListener() {
-                                @Override
-                                public void onLoadUserInfoSuccess(User user) {
-                                    if (null != user) {
-                                        updateUserInfo(user);
-                                    }
-                                }
 
-                                @Override
-                                public void onLoadUserInfoFailure(String msg) {
-
-                                }
-                            });
                         } else {
                             conversation.setTarget(tempUser);
                         }
@@ -241,17 +204,7 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
         RongIM.getInstance().startPrivateChat(getActivity(), id, id);
     }
 
-    @Override
-    public void onItemClicked(User user) {
-        if (application.isLogin()) {
-            String id = user.getName();
-            RongIM.getInstance().startPrivateChat(getActivity(), id, user.getNickEx());
-        } else {
-            this.user = user;
-            callLogin(1);
-        }
 
-    }
 
     private void updateUserInfo(User user) {
         for (int i = 0; i < conversations.size(); i++) {
@@ -265,16 +218,7 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
         }
     }
 
-    @Override
-    public void onLoadUserFailure(String msg) {
-        showMessage("获取用户列表失败，原因：" + msg, null, null);
-    }
 
-    @Override
-    public void onLoadUserSuccess(ArrayList<User> users) {
-        this.waitUsers = users;
-        showUser();
-    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -283,11 +227,10 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
             switch (requestCode) {
                 case 0:
                     showData();
-                    showUser();
                     break;
-                case 1:
+           /*     case 1:
                     onItemClicked(user);
-                    break;
+                    break;*/
                 case 2:
                     getConversation();
                     break;

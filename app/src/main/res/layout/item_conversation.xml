@@ -29,7 +29,7 @@
         android:layout_marginBottom="@dimen/usercenter_item_layoutpadding"
         android:layout_alignParentBottom="true"
         android:textColor="@color/textColorSecondary"
-        android:textSize="@dimen/font_hint"
+        android:textSize="@dimen/text_hint"
         android:text="01-20"/>
 
     <android.support.v7.widget.AppCompatTextView
@@ -46,7 +46,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1px"
-        android:background="@color/colorlistdivier"
+        android:background="@color/divierColor"
         android:layout_alignParentBottom="true" />
 
 </RelativeLayout>

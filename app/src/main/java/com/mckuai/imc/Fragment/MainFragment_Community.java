@@ -23,7 +23,7 @@ import com.mckuai.imc.Bean.Page;
 import com.mckuai.imc.Bean.Post;
 import com.mckuai.imc.Bean.User;
 import com.mckuai.imc.R;
-import com.mckuai.imc.Util.MCNetEngine;
+import com.mckuai.imc.Utils.MCNetEngine;
 
 import java.util.ArrayList;
 
@@ -49,7 +49,7 @@ public class MainFragment_Community extends BaseFragment
 
 
     public MainFragment_Community() {
-        mTitleResId = R.string.fragment_community;
+
     }
 
     @Override

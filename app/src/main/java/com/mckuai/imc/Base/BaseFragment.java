@@ -6,14 +6,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 
-import com.mckuai.imc.Fragment.CreateCartoonFragment;
-import com.mckuai.imc.Fragment.MainFragment_Cartoon;
-import com.mckuai.imc.Fragment.MainFragment_Chat;
-import com.mckuai.imc.Fragment.MainFragment_Community;
-import com.mckuai.imc.Fragment.ProfileEditerFragment;
-import com.mckuai.imc.Fragment.RecommendFragment;
-import com.mckuai.imc.Fragment.ThemeFragment;
-import com.mckuai.imc.R;
 import com.umeng.analytics.MobclickAgent;
 
 
@@ -24,7 +16,7 @@ public class BaseFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (this instanceof CreateCartoonFragment) {
+        /*if (this instanceof CreateCartoonFragment) {
             mTitleResId = R.string.fragment_cartoon;
         } else if (this instanceof MainFragment_Cartoon) {
             mTitleResId = R.string.fragment_cartoon;
@@ -38,7 +30,7 @@ public class BaseFragment extends Fragment {
             mTitleResId = R.string.fragment_profile;
         } else if (this instanceof ThemeFragment){
             mTitleResId = R.string.fragment_theme;
-        }
+        }*/
     }
 
     @Override
