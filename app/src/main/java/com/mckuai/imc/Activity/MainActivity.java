@@ -1,7 +1,11 @@
 package com.mckuai.imc.Activity;
 
 import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -15,11 +19,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 
 import com.mckuai.imc.Base.BaseActivity;
+import com.mckuai.imc.Fragment.MainFragment_Chat;
+import com.mckuai.imc.Fragment.MainFragment_Community;
+import com.mckuai.imc.Fragment.MainFragment_Recommend;
+import com.mckuai.imc.Fragment.MainFragment_Video;
 import com.mckuai.imc.R;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.umeng.analytics.MobclickAgent;
 import com.umeng.socialize.media.UMImage;
 
 import java.util.ArrayList;
@@ -38,7 +50,10 @@ public class MainActivity extends BaseActivity
     private ImageLoader loader;
     private DisplayImageOptions circleDisplayOption;
 
+
+    private FragmentManager fragmentManager;
     private ArrayList<Fragment> fragments;
+    private int currentFragmentIndex = 0;
 
     private final int LOGIN_USERCENTER = 0;
     private final int LOGIN_SETTING = 1;
@@ -54,9 +69,14 @@ public class MainActivity extends BaseActivity
     @Override
     protected void onResume() {
         super.onResume();
-        if (null == userCover){
+        if (null == radioGroup){
             initView();
             initImageLoader();
+            initFragment();
+        }
+
+        if (null != fragmentManager && null != fragments) {
+            fragmentManager.beginTransaction().show(fragments.get(currentFragmentIndex)).commit();
         }
     }
 
@@ -73,16 +93,23 @@ public class MainActivity extends BaseActivity
         toggle.syncState();
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        View view = navigationView.inflateHeaderView(R.layout.nav_header_base);
+        userCover = (AppCompatImageButton) view.findViewById(R.id.slh_userCover);
+        userName = (AppCompatTextView) view.findViewById(R.id.slh_userName);
+        userLevel = (AppCompatTextView) view.findViewById(R.id.slh_userLevel);
+        userCover.setOnClickListener(this);
+
     }
 
 
     private void initView(){
-        userCover = (AppCompatImageButton) findViewById(R.id.slh_userCover);
-        userName = (AppCompatTextView) findViewById(R.id.slh_userName);
-        userLevel = (AppCompatTextView) findViewById(R.id.slh_userLevel);
         radioGroup = (RadioGroup) findViewById(R.id.nav);
+        nav_recommend = (AppCompatRadioButton) findViewById(R.id.nav_recommend);
+        nav_video = (AppCompatRadioButton) findViewById(R.id.nav_video);
+        nav_chat = (AppCompatRadioButton) findViewById(R.id.nav_chat);
+        nav_community = (AppCompatRadioButton) findViewById(R.id.nav_community);
 
-        userCover.setOnClickListener(this);
         radioGroup.setOnCheckedChangeListener(this);
     }
 
@@ -94,7 +121,22 @@ public class MainActivity extends BaseActivity
     }
 
     private void initFragment(){
+        fragments = new ArrayList<>(4);
+        fragments.add(new MainFragment_Recommend());
+        fragments.add(new MainFragment_Video());
+        fragments.add(new MainFragment_Chat());
+        fragments.add(new MainFragment_Community());
 
+        RelativeLayout contentView = (RelativeLayout) findViewById(R.id.fragment_content);
+
+        fragmentManager = getFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        for (Fragment fragment:fragments){
+            transaction.add(contentView.getId(),fragment);
+            transaction.hide(fragment);
+        }
+        transaction.commit();
+        currentFragmentIndex = 0;
     }
 
 
@@ -167,16 +209,40 @@ public class MainActivity extends BaseActivity
      */
     @Override
     public void onCheckedChanged(RadioGroup group, int checkedId) {
-        switch (checkedId){
-            case R.id.nav_recommend:
-                break;
-            case R.id.nav_video:
-                break;
-            case R.id.nav_chat:
-                break;
-            case R.id.nav_community:
-                break;
+        if (null != fragments && !fragments.isEmpty()) {
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            if (0 <= currentFragmentIndex) {
+                transaction.hide(fragments.get(currentFragmentIndex));
+            }
+            switch (checkedId) {
+                case R.id.nav_recommend:
+                    MobclickAgent.onEvent(this, "clickCartoon");
+                    mTitle.setText("推荐");
+                    //title.setVisibility(View.GONE);
+                    currentFragmentIndex = 0;
+                    break;
+                case R.id.nav_video:
+                    MobclickAgent.onEvent(this, "clickChat");
+                    //title.setVisibility(View.VISIBLE);
+                    mTitle.setText("视频");
+                    currentFragmentIndex = 1;
+                    break;
+                case R.id.nav_chat:
+                    MobclickAgent.onEvent(this, "clickForum");
+                    //title.setVisibility(View.VISIBLE);
+                    mTitle.setText("聊天");
+                    currentFragmentIndex = 2;
+                    break;
+                case R.id.nav_community:
+                    MobclickAgent.onEvent(this, "clickMine");
+                    //title.setVisibility(View.VISIBLE);
+                    mTitle.setText("社区");
+                    currentFragmentIndex = 3;
+                    break;
+            }
+            transaction.show(fragments.get(currentFragmentIndex)).commit();
         }
+
     }
 
 
@@ -184,6 +250,7 @@ public class MainActivity extends BaseActivity
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.slh_userCover:
+                closeSlidingMenu();
                 showUserCenter();
                 break;
         }
@@ -191,13 +258,36 @@ public class MainActivity extends BaseActivity
 
     private void refreshUser(){
         if (mApplication.isLogin()){
-            loader.displayImage(mApplication.user.getHeadImg(),userCover,circleDisplayOption);
+            loader.displayImage(mApplication.user.getHeadImg(), userCover, circleDisplayOption, new ImageLoadingListener() {
+                @Override
+                public void onLoadingStarted(String imageUri, View view) {
+
+                }
+
+                @Override
+                public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+
+                }
+
+                @Override
+                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                    if (null != loadedImage) {
+                        mToolbar.setNavigationIcon(new BitmapDrawable(loadedImage));
+                    }
+                }
+
+                @Override
+                public void onLoadingCancelled(String imageUri, View view) {
+
+                }
+            });
             userName.setText(mApplication.user.getNike());
             userLevel.setText("LV "+mApplication.user.getLevel());
         } else {
             userCover.setImageResource(R.mipmap.ic_usercover_default);
             userName.setText("未登录");
             userLevel.setText("点击头像登录");
+            mToolbar.setNavigationIcon(R.mipmap.ic_usercover_default);
         }
     }
 
@@ -244,12 +334,7 @@ public class MainActivity extends BaseActivity
             Intent intent = new Intent(this,UserCenterActivity.class);
             startActivity(intent);
         } else {
-            showMessage("登录后才能使用个人中心，是否登录？", "登录", new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    callLogin(LOGIN_USERCENTER);
-                }
-            });
+            callLogin(LOGIN_USERCENTER);
         }
     }
 

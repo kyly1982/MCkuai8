@@ -13,14 +13,14 @@ android {
     }
 
     //方便调试分享用，必须在buildtypes配置前
-    signingConfigs {
-        config {
-            keyAlias '麦块我的世界盒子'
-            keyPassword 'youxigt888'
-            storeFile file('F:/Repository/imc.keystore')
-            storePassword 'ilovegt888'
-        }
-    }
+//    signingConfigs {
+//        config {
+//            keyAlias '麦块我的世界盒子'
+//            keyPassword 'youxigt888'
+//            storeFile file('F:/Repository/imc.keystore')
+//            storePassword 'ilovegt888'
+//        }
+//    }
 
     buildTypes {
         release {
@@ -30,7 +30,7 @@ android {
         }
 
         debug {
-            signingConfig signingConfigs.config
+            //signingConfig signingConfigs.config
             minifyEnabled false
         }
     }
@@ -85,6 +85,7 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile project(':IMKit')
     compile 'com.android.support:support-v4:23.+'
     compile 'com.android.support:design:23.+'
     compile 'com.android.support:appcompat-v7:23.+'
@@ -96,8 +97,6 @@ dependencies {
     compile 'de.greenrobot:greendao:2.1.0'
     compile 'com.umeng.analytics:analytics:latest.integration'
     compile 'com.loopj.android:android-async-http:+'
-
-    compile project(':IMKit')
     compile files('libs/BaiduLBS_Android.jar')
     compile files('libs/httpcore-4.4.1.jar')
     compile files('libs/mta-sdk-1.6.2.jar')

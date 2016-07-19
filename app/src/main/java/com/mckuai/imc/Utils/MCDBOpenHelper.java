@@ -4,7 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.mckuai.imc.R;
-import com.mckuai.imc.Util.MCDao.DaoMaster;
+import com.mckuai.imc.Utils.MCDao.DaoMaster;
 
 /**
  * Created by kyly on 2016/1/21.

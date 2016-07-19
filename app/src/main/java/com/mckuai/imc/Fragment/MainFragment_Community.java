@@ -2,8 +2,8 @@ package com.mckuai.imc.Fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,7 +43,7 @@ public class MainFragment_Community extends BaseFragment
 
     private SuperRecyclerView mForumList;
     private SuperRecyclerView mPostList;
-    private FloatingActionButton mCreatePost;
+    private AppCompatImageButton mCreatePost;
     private RadioGroup postGroup;
 
 
@@ -88,7 +88,7 @@ public class MainFragment_Community extends BaseFragment
     private void initView(){
         mForumList = (SuperRecyclerView) view.findViewById(R.id.community_forumlist);
         mPostList = (SuperRecyclerView) view.findViewById(R.id.community_postlist);
-        mCreatePost = (FloatingActionButton) view.findViewById(R.id.community_createpost);
+        mCreatePost = (AppCompatImageButton) view.findViewById(R.id.community_createpost);
         postGroup = (RadioGroup) view.findViewById(R.id.posttype_indicator);
 
         mForumList.getRecyclerView().setHasFixedSize(true);

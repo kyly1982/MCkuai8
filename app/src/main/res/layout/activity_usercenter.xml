@@ -198,7 +198,7 @@
                 android:layout_above="@id/layut_opeartion"
                 android:layout_below="@id/type"
                 android:background="@color/color_white"
-                app:layout_empty="@layout/emptyview"></com.malinskiy.superrecyclerview.SuperRecyclerView>
+                app:layout_empty="@layout/emptyview_nodata"></com.malinskiy.superrecyclerview.SuperRecyclerView>
 
             <com.malinskiy.superrecyclerview.SuperRecyclerView
                 android:id="@+id/worklist"
@@ -208,7 +208,7 @@
                 android:layout_below="@id/type"
                 android:background="@color/color_white"
                 android:visibility="gone"
-                app:layout_empty="@layout/emptyview"></com.malinskiy.superrecyclerview.SuperRecyclerView>
+                app:layout_empty="@layout/emptyview_nodata"></com.malinskiy.superrecyclerview.SuperRecyclerView>
 
             <android.support.v7.widget.AppCompatTextView
                 android:id="@+id/emptyview"

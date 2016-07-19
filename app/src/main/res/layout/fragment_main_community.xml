@@ -12,7 +12,7 @@
         android:paddingTop="@dimen/margin_content"
         android:paddingBottom="@dimen/margin_content"
         android:background="@color/colorPrimary"
-        app:layout_empty="@layout/emptyview"
+        app:layout_empty="@layout/emptyview_nodata"
         >
 
     </com.malinskiy.superrecyclerview.SuperRecyclerView>
@@ -76,7 +76,7 @@
         android:layout_below="@id/posttype_indicator"
         android:background="@color/color_white"
         android:layout_alignParentBottom="true"
-        app:layout_empty="@layout/emptyview"
+        app:layout_empty="@layout/emptyview_nodata"
         >
 
     </com.malinskiy.superrecyclerview.SuperRecyclerView>

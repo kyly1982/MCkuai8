@@ -9,11 +9,11 @@ import com.mckuai.imc.Bean.MCUser;
 import com.mckuai.imc.Bean.PostType;
 import com.mckuai.imc.Bean.Type;
 import com.mckuai.imc.Bean.User;
-import com.mckuai.imc.Util.MCDao.DaoMaster;
-import com.mckuai.imc.Util.MCDao.DaoSession;
-import com.mckuai.imc.Util.MCDao.ForumDao;
-import com.mckuai.imc.Util.MCDao.TypeDao;
-import com.mckuai.imc.Util.MCDao.UserDao;
+import com.mckuai.imc.Utils.MCDao.DaoMaster;
+import com.mckuai.imc.Utils.MCDao.DaoSession;
+import com.mckuai.imc.Utils.MCDao.ForumDao;
+import com.mckuai.imc.Utils.MCDao.TypeDao;
+import com.mckuai.imc.Utils.MCDao.UserDao;
 
 import java.util.ArrayList;
 import java.util.List;

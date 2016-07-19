@@ -31,7 +31,7 @@
         android:name=".Base.MCKuai"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="${APP_NAME}"
         android:theme="@style/AppTheme">
         <activity
             android:name=".Activity.MainActivity"
@@ -69,8 +69,96 @@
                   android:screenOrientation="portrait"
                   />
 
-        <activity android:name=".wxapi.WXEntryActivity"
-                  />
+        <!-- ********************************************配置腾讯的相关SDK******************************************** -->
+        <activity
+            android:name=".wxapi.WXEntryActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <activity
+            android:name="com.tencent.tauth.AuthActivity"
+            android:launchMode="singleTask"
+            android:noHistory="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="tencent101155101" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.tencent.connect.common.AssistActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <!-- ********************************************百度定位******************************************** -->
+        <meta-data
+            android:name="com.baidu.lbsapi.API_KEY"
+            android:value="8BeV0Eu1X94jbXQgFckSaL8L" />
+
+        <service
+            android:name="com.baidu.location.f"
+            android:enabled="true"
+            android:process=":remote" />
+
+        <!-- ********************************************友盟相关******************************************** -->
+        <activity
+            android:name="com.umeng.socialize.editorpage.ShareActivity"
+            android:configChanges="orientation|keyboard"
+            android:launchMode="singleTask"
+            android:noHistory="true"
+            android:theme="@style/Theme.UMDialog"
+            android:windowSoftInputMode="stateVisible|adjustResize" />
+
+        <!-- 友盟统计 key -->
+        <meta-data
+            android:name="UMENG_APPKEY"
+            android:value="55127cc0fd98c5421700098f" />
+        <!-- 友盟统计渠道 -->
+        <meta-data
+            android:name="UMENG_CHANNEL"
+            android:value="${UMENG_CHANNEL_VALUE}" />
+
+
+
+        <!-- 会话列表 -->
+        <activity
+            android:name=".Activity.ConversationActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data
+                    android:host="com.mckuai.imc"
+                    android:pathPrefix="/conversation/"
+                    android:scheme="rong" />
+            </intent-filter>
+        </activity>
+
+        <!-- 聚合会话列表 -->
+        <activity
+            android:name=".Activity.SubConversationListActivtiy"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data
+                    android:host="com.mckuai.imc"
+                    android:pathPrefix="/subconversationlist"
+                    android:scheme="rong" />
+            </intent-filter>
+        </activity>
 
     </application>
 

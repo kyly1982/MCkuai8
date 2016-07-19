@@ -14,13 +14,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
+    <!--为了能在应用中找到头部的控件，需在代码中添加头，此处的app:headerLayout="@layout/nav_header_base"被移除-->
     <android.support.design.widget.NavigationView
         android:id="@+id/nav_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:background="@mipmap/bg_slidingmenu"
-        app:headerLayout="@layout/nav_header_base"
         app:menu="@menu/activity_base_drawer"/>
 
 </android.support.v4.widget.DrawerLayout>
