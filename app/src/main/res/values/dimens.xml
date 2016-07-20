@@ -44,5 +44,9 @@
     <dimen name="text_normal">12sp</dimen>
     <dimen name="text_hint">10sp</dimen>
 
+    <!-- 摧荐页item相关高度 -->
+    <dimen name="item_video_height">189dp</dimen>
+    <dimen name="item_video_cove_height">144dp</dimen>
+
 
 </resources>

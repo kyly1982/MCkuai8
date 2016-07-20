@@ -12,6 +12,7 @@ import com.umeng.analytics.MobclickAgent;
 public class BaseFragment extends Fragment {
     protected int mTitleResId;
     protected OnFragmentEventListener mOnFragmentEventListener;
+    protected MCKuai mApplication = MCKuai.instence;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

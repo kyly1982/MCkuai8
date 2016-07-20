@@ -40,11 +40,11 @@ public class Post implements Serializable {
     private int isDing;//置顶
     private int isJing;//加精
     private int isLive;//正在直播
-    private int postType;//帖子的类型，包括如下几种.0:帖子；1.直播；2.聊天室
+/*    private int postType;//帖子的类型，包括如下几种.0:帖子；1.直播；2.聊天室
 
     public static final int TYPE_POST = 0;// 帖子
     public static final int TYPE_LIVE = 1;// 直播
-    public static final int TYPE_CHATROOM = 2;//聊天室
+    public static final int TYPE_CHATROOM = 2;//聊天室*/
 
     public int getId() {
         return id;
@@ -257,13 +257,13 @@ public class Post implements Serializable {
         this.isLive = isLive;
     }
 
-    public int getPostType() {
+  /*  public int getPostType() {
         return postType;
     }
 
     public void setPostType(int postType) {
         this.postType = postType;
-    }
+    }*/
 
     public String getTalkType() {
         return talkType;

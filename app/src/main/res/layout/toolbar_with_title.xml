@@ -21,8 +21,9 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:gravity="center"
-            android:visibility="gone"
+            android:visibility="visible"
             android:text="标题"
+            android:textSize="@dimen/text_title"
             />
     </android.support.v7.widget.Toolbar>
 

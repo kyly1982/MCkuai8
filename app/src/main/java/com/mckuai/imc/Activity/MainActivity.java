@@ -55,6 +55,9 @@ public class MainActivity extends BaseActivity
     private ArrayList<Fragment> fragments;
     private int currentFragmentIndex = 0;
 
+    private Menu menu;
+    private MenuItem type_new,type_hot;
+
     private final int LOGIN_USERCENTER = 0;
     private final int LOGIN_SETTING = 1;
     private final int LOGIN_PACKAGE = 2;
@@ -154,18 +157,40 @@ public class MainActivity extends BaseActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        //getMenuInflater().inflate(R.menu.base, menu);
+        getMenuInflater().inflate(R.menu.menu_videocategory, menu);
+        this.menu = menu;
+        type_hot = menu.findItem(R.id.action_hot);
+        type_new = menu.findItem(R.id.action_new);
         return true;
     }
 
+    /**
+     * toolbar中的菜单
+     * @param item
+     * @return
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
+        item.setChecked(true);
+        switch (item.getItemId()){
+            case R.id.action_hot:
+                break;
+            case R.id.action_new:
+                break;
+            case R.id.action_cartoon:
+                break;
+            case R.id.action_knowledge:
+                break;
+            case R.id.action_map:
+                break;
+            case R.id.action_mod:
+                break;
+            case R.id.action_show:
+                break;
+            case R.id.action_online:
+                break;
         }
-
-        return super.onOptionsItemSelected(item);
+        return true;
     }
 
     /**
@@ -218,24 +243,20 @@ public class MainActivity extends BaseActivity
                 case R.id.nav_recommend:
                     MobclickAgent.onEvent(this, "clickCartoon");
                     mTitle.setText("推荐");
-                    //title.setVisibility(View.GONE);
                     currentFragmentIndex = 0;
                     break;
                 case R.id.nav_video:
                     MobclickAgent.onEvent(this, "clickChat");
-                    //title.setVisibility(View.VISIBLE);
                     mTitle.setText("视频");
                     currentFragmentIndex = 1;
                     break;
                 case R.id.nav_chat:
                     MobclickAgent.onEvent(this, "clickForum");
-                    //title.setVisibility(View.VISIBLE);
                     mTitle.setText("聊天");
                     currentFragmentIndex = 2;
                     break;
                 case R.id.nav_community:
                     MobclickAgent.onEvent(this, "clickMine");
-                    //title.setVisibility(View.VISIBLE);
                     mTitle.setText("社区");
                     currentFragmentIndex = 3;
                     break;

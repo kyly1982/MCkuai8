@@ -23,7 +23,9 @@ import com.mckuai.imc.Bean.MCUser;
 import com.mckuai.imc.Bean.Page;
 import com.mckuai.imc.Bean.Post;
 import com.mckuai.imc.Bean.PostListBean;
+import com.mckuai.imc.Bean.Recommend;
 import com.mckuai.imc.Bean.User;
+import com.mckuai.imc.Bean.VideoBean;
 import com.mckuai.imc.R;
 
 import org.apache.http.Header;
@@ -32,6 +34,7 @@ import org.json.JSONObject;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import okhttp3.OkHttpClient;
@@ -77,16 +80,114 @@ public class MCNetEngine {
         }
     }
 
+    /***************************************************************************
+     *推荐页接口
+     ***************************************************************************/
+
+    public interface OnLoadRecommendListener{
+        void onLoadRecommendSuccess(ArrayList<Post> recommendList);
+        void onLoadRecommendFailure(String msg);
+    }
+
+    public void loadRecommend(final Context context, int userId, final OnLoadRecommendListener listener){
+        final String url = "http://api.mckuai.com/interface.do?act=indexRec";
+        final RequestParams params = new RequestParams();
+        if (0 < userId){
+            params.put("id",userId);
+        }
+        httpClient.post(url,params,new JsonHttpResponseHandler(){
+            @Override
+            public void onStart() {
+                if (null != listener) {
+                    String result = cache.get(url, params);
+                    if (null != result && result.length() > 10) {
+                        ArrayList<Post> recommendList = gson.fromJson(result, new TypeToken<ArrayList<Post>>() {
+                        }.getType());
+                        listener.onLoadRecommendSuccess(recommendList);
+                    }
+                }
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                ParseResponse result = new ParseResponse(context, response);
+                if (result.isSuccess) {
+                    Recommend recommend = gson.fromJson(result.msg,Recommend.class);
+                    ArrayList<Post> postList =recommend.getAllPostList();
+                    listener.onLoadRecommendSuccess(postList);
+                    cache.put(url,params,gson.toJson(postList));
+                } else {
+                    listener.onLoadRecommendFailure(result.msg);
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                listener.onLoadRecommendFailure(context.getString(R.string.error_requestfalse, throwable.getLocalizedMessage()));
+            }
+        });
+    }
+
+    /***************************************************************************
+     * 视频
+     ***************************************************************************/
+    public interface OnLoadVideoListener{
+        void onLoadVideoSuccess(VideoBean video);
+        void onLoadVideoFailure(String msg);
+    }
+
+    public void loadVideoList(final Context context, String videoType, String orderType, final int page, final OnLoadVideoListener listener){
+        final String url = "http://api.mckuai.com/interface.do?act=live";
+        final RequestParams params = new RequestParams();
+        params.put("forumId",100);//取视频标识
+        params.put("type", URLEncoder.encode(videoType));
+        params.put("orderField",orderType);
+        params.put("page",page);
+        httpClient.post(url,params,new JsonHttpResponseHandler(){
+            @Override
+            public void onStart() {
+                if (1 == page && null != listener) {
+                    String result = cache.get(url, params);
+                    if (null != result && result.length() > 10){
+                        VideoBean video = gson.fromJson(result,VideoBean.class);
+                        listener.onLoadVideoSuccess(video);
+                    }
+                }
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                ParseResponse pr = new ParseResponse(context,response);
+                if (pr.isSuccess){
+                    VideoBean video = gson.fromJson(pr.msg,VideoBean.class);
+                    if (null != video){
+                        listener.onLoadVideoSuccess(video);
+                    } else {
+                        listener.onLoadVideoFailure(context.getString(R.string.error_parsefalse));
+                    }
+                } else {
+                    listener.onLoadVideoFailure(pr.msg);
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                listener.onLoadVideoFailure(context.getString(R.string.error_requestfalse, throwable.getLocalizedMessage()));
+            }
+        });
+    }
+
+    /***************************************************************************
+     * 登录
+     ***************************************************************************/
+
+
     public interface OnLoginServerResponseListener {
         void onLoginSuccess(MCUser user);
 
         void onLoginFailure(String msg);
     }
 
-
-    /***************************************************************************
-     * 登录
-     ***************************************************************************/
 
     public void loginServer(@NonNull final Context context, @NonNull final MCUser user, @NonNull final OnLoginServerResponseListener listener) {
         String url = domainName + context.getString(R.string.interface_login);

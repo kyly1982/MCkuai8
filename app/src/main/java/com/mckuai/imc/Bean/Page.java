@@ -17,9 +17,11 @@ public class Page implements Serializable {
         this.allCount = allCount;
         this.page = page;
         this.pageSize = pageSize;
+        this.pageCount = (0 == (allCount % pageSize) ? (allCount / pageSize) : ((allCount / pageSize) + 1));
     }
 
     public Page() {
+        this.page = 0;
     }
 
     public int getPage() {
