@@ -48,7 +48,7 @@ public class UserCenterActivity extends BaseActivity
         OnMoreListener,
         SwipeRefreshLayout.OnRefreshListener {
     private User user;
-    private int contentType = 20;//默认显示社区消息
+    private int contentTypeId = 0;//默认显示社区消息
 
     private CommunityDynamicAdapter communityDynamicAdapter;
     private CommunityMessageAdapter communityMessageAdapter;
@@ -61,7 +61,6 @@ public class UserCenterActivity extends BaseActivity
 
     private ImageLoader loader;
 
-
     private AppCompatImageView userCover;
     private AppCompatTextView userLevel;
     private LinearLayout operation;
@@ -71,7 +70,6 @@ public class UserCenterActivity extends BaseActivity
     private RadioGroup type;
     private SuperRecyclerView list;
     private SuperRecyclerView work;//作品布局不一样
-    private AppCompatRadioButton cartoon;
     private AppCompatRadioButton message;
     private AppCompatRadioButton dynamic;
     private AppCompatRadioButton friend;
@@ -97,13 +95,15 @@ public class UserCenterActivity extends BaseActivity
             }
         });
         getParams();
-        initView();
         loader = ImageLoader.getInstance();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        if (null == userCover) {
+            initView();
+        }
         showData();
     }
 
@@ -146,7 +146,6 @@ public class UserCenterActivity extends BaseActivity
 
         mTitle.setTextColor(getResources().getColor(R.color.color_white));
 
-        cartoon.setChecked(true);
         changeUIByUser();
 
         addFriend.setOnClickListener(this);
@@ -174,22 +173,21 @@ public class UserCenterActivity extends BaseActivity
     }
 
     private void changeUIByUser() {
+        contentTypeId = R.id.message;
         if (isMySelf()) {
+            group.setVisibility(View.VISIBLE);
             operation.setVisibility(View.GONE);
             message.setVisibility(View.VISIBLE);
-            friend.setVisibility(View.VISIBLE);
             spaceRight.setVisibility(View.VISIBLE);
             spaceLeft.setVisibility(View.VISIBLE);
             message.setChecked(true);
-            contentType = 36;
         } else {
+            group.setVisibility(View.GONE);
             operation.setVisibility(View.VISIBLE);
             message.setVisibility(View.GONE);
-            friend.setVisibility(View.GONE);
             spaceRight.setVisibility(View.GONE);
             spaceLeft.setVisibility(View.GONE);
             dynamic.setChecked(true);
-            contentType = 34;
         }
     }
 
@@ -200,24 +198,27 @@ public class UserCenterActivity extends BaseActivity
     private void loadData(boolean isRefresh) {
         if (isLoading) {
             return;
+        } else {
+            isLoading = true;
         }
-        switch (contentType) {
+        switch (contentTypeId) {
 
-            case 20:
+            case R.id.message:
                 if (null == communityMessagePage) {
                     communityMessagePage = new Page();
                 } else {
-                    if (communityMessagePage.getPage() == communityMessagePage.getNextPage() && !isRefresh) {
-                        hideProgress();
-                        return;
+                    if (isRefresh) {
+                        communityMessagePage.setPage(0);
+                    } else {
+                        if (communityMessagePage.getPage() == communityMessagePage.getNextPage()) {
+                            hideProgress();
+                            return;
+                        }
                     }
-                }
-                if (isRefresh) {
-                    communityMessagePage.setPage(0);
                 }
                 mApplication.netEngine.loadCommunityMessage(this, user.getId().intValue(), communityMessagePage.getNextPage(), this);
                 break;
-            case 18:
+            case R.id.dynamic:
                 if (null == communityDynamicPage) {
                     communityDynamicPage = new Page();
                 } else if (communityDynamicPage.getPage() == communityDynamicPage.getNextPage() && !isRefresh) {
@@ -229,7 +230,7 @@ public class UserCenterActivity extends BaseActivity
                 }
                 mApplication.netEngine.loadCommunityDynamic(this, user.getId().intValue(), communityDynamicPage.getNextPage(), this);
                 break;
-            case 17:
+            case R.id.work:
                 if (null == communityWorkPage) {
                     communityWorkPage = new Page();
                 } else if (communityWorkPage.getPage() == communityWorkPage.getNextPage() && !isRefresh) {
@@ -241,28 +242,29 @@ public class UserCenterActivity extends BaseActivity
                 }
                 mApplication.netEngine.loadCommunityWork(this, user.getId().intValue(), communityWorkPage.getNextPage(), this);
                 break;
-            default:
-                if (8 == (contentType & 8)){
-                    if (null == friendPage) {
-                        friendPage = new Page();
-                    } else if (friendPage.getPage() == friendPage.getNextPage() && !isRefresh) {
-                        hideProgress();
-                        return;
-                    }
-                    if (isRefresh) {
-                        friendPage.setPage(0);
-                    }
-                    mApplication.netEngine.loadFriendList(this, friendPage.getNextPage(), this);
+            case R.id.friend:
+                if (null == friendPage) {
+                    friendPage = new Page();
+                } else if (friendPage.getPage() == friendPage.getNextPage() && !isRefresh) {
+                    hideProgress();
+                    return;
                 }
+                if (isRefresh) {
+                    friendPage.setPage(0);
+                }
+                mApplication.netEngine.loadFriendList(this, friendPage.getNextPage(), this);
+                break;
+            default:
+
                 break;
         }
     }
 
 
     private void showData() {
-        switch (contentType) {
+        switch (contentTypeId) {
 
-            case 20://社区消息
+            case R.id.message://社区消息
                 list.setVisibility(View.VISIBLE);
                 work.setVisibility(View.GONE);
                 if (null != communityMessageAdapter) {
@@ -272,7 +274,7 @@ public class UserCenterActivity extends BaseActivity
                     loadData(false);
                 }
                 break;
-            case 18://社区动态
+            case R.id.dynamic://社区动态
                 list.setVisibility(View.VISIBLE);
                 work.setVisibility(View.GONE);
                 if (null != communityDynamicAdapter) {
@@ -282,7 +284,7 @@ public class UserCenterActivity extends BaseActivity
                     loadData(false);
                 }
                 break;
-            case 17://社区作品
+            case R.id.work://社区作品
                 list.setVisibility(View.VISIBLE);
                 work.setVisibility(View.GONE);
                 if (null != communityWorkAdapter) {
@@ -292,16 +294,14 @@ public class UserCenterActivity extends BaseActivity
                     loadData(false);
                 }
                 break;
-            default:
-                if (8 == (contentType & 8)){
-                    list.setVisibility(View.VISIBLE);
-                    work.setVisibility(View.GONE);
-                    if (null != friendAdapter) {
-                        list.setAdapter(friendAdapter);
-                        friendAdapter.notifyDataSetChanged();
-                    } else {
-                        loadData(false);
-                    }
+            case R.id.friend:
+                list.setVisibility(View.VISIBLE);
+                work.setVisibility(View.GONE);
+                if (null != friendAdapter) {
+                    list.setAdapter(friendAdapter);
+                    friendAdapter.notifyDataSetChanged();
+                } else {
+                    loadData(false);
                 }
                 break;
         }
@@ -313,19 +313,14 @@ public class UserCenterActivity extends BaseActivity
             if (null == userCover.getTag() || !userCover.getTag().equals(user.getHeadImage()))
                 loader.displayImage(user.getHeadImage(), userCover, mApplication.getCircleOptions());
             mTitle.setText(user.getNickEx());
-            userLevel.setText(getString(R.string.usercenter_userlevel,user.getLevel()));
+            userLevel.setText(getString(R.string.usercenter_userlevel, user.getLevel()));
         }
     }
 
     private void resetUser(User user) {
         this.user = user;
-        if (user.getId() != mApplication.user.getId()) {
-            contentType = 34;
-        } else {
-            contentType = 36;
-        }
-        isLoading = true;
-        cartoon.setChecked(true);
+
+        isLoading = true;//防止触发加载
         dynamic.setChecked(true);
         isLoading = false;
 
@@ -355,25 +350,11 @@ public class UserCenterActivity extends BaseActivity
 
     @Override
     public void onCheckedChanged(RadioGroup group, int checkedId) {
-        switch (checkedId) {
-
-            case R.id.community:
-                type.setVisibility(View.VISIBLE);
-                contentType = (contentType & 7) | 16;//010,111
-                break;
-            case R.id.friend:
-                type.setVisibility(View.GONE);//001,111
-                contentType = (contentType & 7) | 8;
-                break;
-            case R.id.message:
-                contentType = (contentType & 56)|4;//111,100
-                break;
-            case R.id.dynamic:
-                contentType = (contentType & 56) | 2;//111,010
-                break;
-            case R.id.work:
-                contentType = (contentType & 56) | 1;//111,001
-                break;
+        contentTypeId = checkedId;
+        if (checkedId == R.id.community) {
+            type.setVisibility(View.VISIBLE);
+        } else if (checkedId == R.id.friend) {
+            type.setVisibility(View.GONE);
         }
         showData();
     }
@@ -464,6 +445,7 @@ public class UserCenterActivity extends BaseActivity
 
     @Override
     public void onLoadCommunityDynamicSuccess(ArrayList<CommunityDynamic> dynamics, User user, Page page) {
+        isLoading = false;
         if (null != user) {
             this.user = user;
             showUserInfo();
@@ -499,6 +481,7 @@ public class UserCenterActivity extends BaseActivity
 
     @Override
     public void onLoadCommunityDynamicFailure(String msg) {
+        isLoading = false;
         showMessage(msg, null, null);
         if (null == communityDynamicAdapter) {
             showEmptyView();
@@ -507,6 +490,7 @@ public class UserCenterActivity extends BaseActivity
 
     @Override
     public void onLoadCommunityMessageSuccess(ArrayList<CommunityMessage> messages, User user, Page page) {
+        isLoading = false;
         if (null != user) {
             this.user = user;
             showUserInfo();
@@ -542,6 +526,7 @@ public class UserCenterActivity extends BaseActivity
 
     @Override
     public void onLoadCommunityMessageFailure(String msg) {
+        isLoading = false;
         showMessage(msg, null, null);
         if (null == communityMessageAdapter) {
             showEmptyView();
@@ -550,6 +535,7 @@ public class UserCenterActivity extends BaseActivity
 
     @Override
     public void onLoadCommunityWorkSuccess(ArrayList<Post> works, User user, Page page) {
+        isLoading = false;
         communityWorkPage = page;
         if (null == works || works.isEmpty()) {
             showEmptyView();
@@ -575,7 +561,7 @@ public class UserCenterActivity extends BaseActivity
             });
             list.setAdapter(communityWorkAdapter);
         }
-        if (1 == page.getPage()){
+        if (1 == page.getPage()) {
             communityWorkAdapter.setData(works);
         } else {
             communityWorkAdapter.addData(works);
@@ -584,6 +570,7 @@ public class UserCenterActivity extends BaseActivity
 
     @Override
     public void onLoadCommunityWorkFailure(String msg) {
+        isLoading = false;
         showMessage(msg, null, null);
         if (null == communityWorkAdapter) {
             showEmptyView();
@@ -592,6 +579,7 @@ public class UserCenterActivity extends BaseActivity
 
     @Override
     public void onLoadFriendSuccess(ArrayList<MCUser> friends, Page page) {
+        isLoading = false;
         friendPage = page;
         if (null == friends || friends.isEmpty()) {
             showEmptyView();
@@ -613,7 +601,7 @@ public class UserCenterActivity extends BaseActivity
             });
             list.setAdapter(friendAdapter);
         }
-        if (1 == page.getPage()){
+        if (1 == page.getPage()) {
             friendAdapter.setData(friends);
         } else {
             friendAdapter.addData(friends);
@@ -622,17 +610,20 @@ public class UserCenterActivity extends BaseActivity
 
     @Override
     public void OnloadFriendFailure(String msg) {
+        isLoading = false;
         showMessage(msg, null, null);
         showEmptyView();
     }
 
     @Override
     public void onAddFriendFailure(String msg) {
+        isLoading = false;
         showMessage(msg, null, null);
     }
 
     @Override
     public void onAddFriendSuccess() {
+        isLoading = false;
         showMessage("添加好友成功", null, null);
         addFriend.setEnabled(false);
     }

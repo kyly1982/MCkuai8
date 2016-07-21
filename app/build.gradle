@@ -13,24 +13,24 @@ android {
     }
 
     //方便调试分享用，必须在buildtypes配置前
-//    signingConfigs {
-//        config {
-//            keyAlias '麦块我的世界盒子'
-//            keyPassword 'youxigt888'
-//            storeFile file('F:/Repository/imc.keystore')
-//            storePassword 'ilovegt888'
-//        }
-//    }
+    signingConfigs {
+        config {
+            keyAlias '麦块我的世界盒子'
+            keyPassword 'youxigt888'
+            storeFile file('F:/Repository/imc.keystore')
+            storePassword 'ilovegt888'
+        }
+    }
 
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            //signingConfig signingConfigs.config
+            signingConfig signingConfigs.config
         }
 
         debug {
-            //signingConfig signingConfigs.config
+            signingConfig signingConfigs.config
             minifyEnabled false
         }
     }

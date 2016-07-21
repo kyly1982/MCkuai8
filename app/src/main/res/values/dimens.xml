@@ -48,5 +48,11 @@
     <dimen name="item_video_height">189dp</dimen>
     <dimen name="item_video_cove_height">144dp</dimen>
 
+    <!-- 摧荐页item相关高度 -->
+    <dimen name="item_recommend_cove_height">144dp</dimen>
+    <dimen name="item_recommend_height">189dp</dimen>
+    <dimen name="group_divider_height">26dp</dimen>
+    <dimen name="item_divider_height">11dp</dimen>
+
 
 </resources>

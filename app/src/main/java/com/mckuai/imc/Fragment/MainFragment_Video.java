@@ -2,19 +2,19 @@ package com.mckuai.imc.Fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.AppCompatRadioButton;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RadioGroup;
 
 import com.malinskiy.superrecyclerview.OnMoreListener;
 import com.malinskiy.superrecyclerview.SuperRecyclerView;
 import com.mckuai.imc.Activity.PostActivity;
+import com.mckuai.imc.Activity.UserCenterActivity;
 import com.mckuai.imc.Adapter.VideoAdapter;
 import com.mckuai.imc.Bean.Page;
 import com.mckuai.imc.Bean.Post;
@@ -27,20 +27,17 @@ import java.util.ArrayList;
 /**
  * Created by kyly on 2016/7/20.
  */
-public class MainFragment_Video extends BaseFragment implements RadioGroup.OnCheckedChangeListener,
+public class MainFragment_Video extends BaseFragment implements
         MCNetEngine.OnLoadVideoListener,VideoAdapter.OnItemClickListener,SwipeRefreshLayout.OnRefreshListener,OnMoreListener{
     private View view;
-    private RadioGroup radioGroup;
-    private AppCompatRadioButton type_new,type_hot;
     private SuperRecyclerView listView;
     private RecyclerView.LayoutManager layoutManager;
 
-    private Page page;
+    private Page page = new Page();
     private VideoAdapter adapter;
     private ArrayList<Post> posts;
 
-    private String[] orderType = {"new","hot"};
-    private int orderTypeIndex = 0;
+    private String orderType = "new";
     public  String videoType = "动画";
 
     @Nullable
@@ -56,7 +53,7 @@ public class MainFragment_Video extends BaseFragment implements RadioGroup.OnChe
     @Override
     public void onResume() {
         super.onResume();
-        if (null != view && null == radioGroup) {
+        if (null != view && null == listView) {
             initView();
         }
     }
@@ -73,32 +70,51 @@ public class MainFragment_Video extends BaseFragment implements RadioGroup.OnChe
 
 
     private void initView(){
-        radioGroup = (RadioGroup) view.findViewById(R.id.video_type);
-        type_hot = (AppCompatRadioButton) view.findViewById(R.id.type_hot);
-        type_new = (AppCompatRadioButton) view.findViewById(R.id.type_new);
         listView = (SuperRecyclerView) view.findViewById(R.id.video_list);
 
-        layoutManager = new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false);
+        layoutManager = new StaggeredGridLayoutManager(1,StaggeredGridLayoutManager.VERTICAL);
+
         listView.setLayoutManager(layoutManager);
         listView.setLoadingMore(true);
         listView.setRefreshListener(this);
         listView.setupMoreListener(this,1);
-
-        radioGroup.setOnCheckedChangeListener(this);
     }
 
 
 
-    public void setVideoType(String type){
-        videoType = type;
-        if (null != page){
-            page.setPage(0);
+    public void setVideoType(@IdRes int actionId){
+        switch (actionId){
+            case R.id.action_new:
+                orderType = "new";
+                break;
+            case R.id.action_hot:
+                orderType = "hot";
+                break;
+            case R.id.action_cartoon:
+                videoType = "动画";
+                break;
+            case R.id.action_knowledge:
+                videoType = "教程";
+                break;
+            case R.id.action_map:
+                videoType = "地图";
+                break;
+            case R.id.action_mod:
+                videoType = "模组";
+                break;
+            case R.id.action_show:
+                videoType = "鉴赏";
+                break;
+            case R.id.action_online:
+                videoType = "联机";
+                break;
         }
+        page.setPage(0);
         loadData();
     }
 
     private void showData(boolean isRefresh){
-        if (null == page || 0 == page.getPage()){
+        if (0 == page.getPage()){
             loadData();
         } else {
             if (null == adapter) {
@@ -107,32 +123,25 @@ public class MainFragment_Video extends BaseFragment implements RadioGroup.OnChe
                 listView.setAdapter(adapter);
             }
             adapter.setData(posts,isRefresh);
+            if (isRefresh){
+                layoutManager.scrollToPosition(0);
+            }
         }
     }
 
     private void loadData(){
-        if (null == page || 0 == page.getPage() || page.getPage() < page.getAllCount()) {
-            mApplication.netEngine.loadVideoList(getActivity(),
-                    videoType,
-                    orderType[orderTypeIndex],
-                    null == page ? 1 : page.getNextPage(),
-                    this);
-        } else {
-            showMessage("没有更多了！", null,null);
+        if (!isLoading) {
+            if (0 == page.getPage() || page.getPage() < page.getAllCount()) {
+                mApplication.netEngine.loadVideoList(getActivity(),
+                        videoType,
+                        orderType,
+                        null == page ? 1 : page.getNextPage(),
+                        this);
+                isLoading = true;
+            } else {
+                showMessage("没有更多了！", null, null);
+            }
         }
-    }
-
-    @Override
-    public void onCheckedChanged(RadioGroup group, int checkedId) {
-        switch (checkedId){
-            case R.id.type_hot:
-                orderTypeIndex = 1;
-                break;
-            case R.id.type_new:
-                orderTypeIndex = 0;
-                break;
-        }
-        onRefresh();
     }
 
     @Override
@@ -145,11 +154,16 @@ public class MainFragment_Video extends BaseFragment implements RadioGroup.OnChe
 
     @Override
     public void onMoreAsked(int overallItemsCount, int itemsBeforeMore, int maxLastVisiblePosition) {
-
+        if (!page.EOF()){
+            loadData();
+        } else {
+            showMessage("没有更多了！", null,null);
+        }
     }
 
     @Override
     public void onLoadVideoFailure(String msg) {
+        isLoading = false;
         listView.hideProgress();
         listView.hideMoreProgress();
         showMessage(msg, null,null);
@@ -157,6 +171,9 @@ public class MainFragment_Video extends BaseFragment implements RadioGroup.OnChe
 
     @Override
     public void onLoadVideoSuccess(VideoBean video) {
+        isLoading = false;
+        listView.hideMoreProgress();
+        listView.hideProgress();
         this.page = video.getPageInfo();
         posts = video.getData();
         if (1 == page.getPage()){
@@ -164,6 +181,7 @@ public class MainFragment_Video extends BaseFragment implements RadioGroup.OnChe
         } else {
             showData(false);//添加
         }
+
     }
 
     @Override
@@ -177,6 +195,8 @@ public class MainFragment_Video extends BaseFragment implements RadioGroup.OnChe
 
     @Override
     public void onItemUserClicked(int userId) {
-
+        Intent intent = new Intent(getActivity(), UserCenterActivity.class);
+        intent.putExtra(getString(R.string.usercenter_tag_userid),userId);
+        startActivity(intent);
     }
 }

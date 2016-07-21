@@ -17,6 +17,7 @@ public class User implements Serializable{
     private String nick;
     private String headImage;
     private Boolean isFriend;
+    private String nike;//兼容接口上的字段错误
 
     public User() {
     }
@@ -102,11 +103,11 @@ public class User implements Serializable{
     }
 
     public String getNick() {
-        return nick;
+        return null == nike ? nick:nike;
     }
 
     public String getNickEx(){
-        if (null != nick && nick.length() > 0 && !nick.equalsIgnoreCase("null")) {
+        if (null != getNickEx() && getNickEx().length() > 0 && !getNickEx().equalsIgnoreCase("null")) {
             return nick;
         }
         return name;
@@ -132,4 +133,11 @@ public class User implements Serializable{
         this.isFriend = isFriend;
     }
 
+    public String getNike() {
+        return nike;
+    }
+
+    public void setNike(String nike) {
+        this.nike = nike;
+    }
 }

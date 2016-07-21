@@ -1,30 +1,40 @@
 package com.mckuai.imc.Fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.malinskiy.superrecyclerview.SuperRecyclerView;
+import com.mckuai.imc.Activity.PostActivity;
+import com.mckuai.imc.Activity.UserCenterActivity;
+import com.mckuai.imc.Adapter.RecommendAdapter;
+import com.mckuai.imc.Bean.Post;
 import com.mckuai.imc.R;
+import com.mckuai.imc.Utils.MCNetEngine;
+
+import java.util.ArrayList;
 
 /**
  * Created by kyly on 2016/7/20.
  */
-public class MainFragment_Recommend extends BaseFragment {
+public class MainFragment_Recommend extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener,MCNetEngine.OnLoadRecommendListener,RecommendAdapter.OnItemClickListener {
     private SuperRecyclerView listView;
     private RecyclerView.LayoutManager layoutManager;
+    private RecommendAdapter adapter;
+
+    private ArrayList<Post> posts;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (null == listView){
             listView = (SuperRecyclerView) inflater.inflate(R.layout.fragment_list,container,false);
-            layoutManager = new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false);
-            listView.setLayoutManager(layoutManager);
         }
         return listView;
     }
@@ -32,15 +42,79 @@ public class MainFragment_Recommend extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
+        initVew();
     }
 
     @Override
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
+        if (!hidden){
+            showData();
+        }
+    }
+
+    private void initVew(){
+        layoutManager = new StaggeredGridLayoutManager(1,StaggeredGridLayoutManager.VERTICAL);
+        listView.setLayoutManager(layoutManager);
+        listView.setLoadingMore(false);
+        listView.setRefreshListener(this);
+    }
+
+    private void loadData(){
+        if (isLoading){
+            return;
+        }
+        isLoading = true;
+        mApplication.netEngine.loadRecommend(getActivity(),mApplication.isLogin() ? mApplication.user.getId():0,this);
+    }
+
+    private void showData(){
+        if (null == posts){
+            loadData();
+        } else {
+            if (null == adapter){
+                adapter = new RecommendAdapter(getActivity(),mApplication.getNormalOptions(),mApplication.getCircleOptions(),this);
+                listView.setAdapter(adapter);
+            }
+            adapter.setData(posts);
+        }
+    }
+
+    @Override
+    public void onRefresh() {
+        loadData();
+    }
+
+    @Override
+    public void onLoadRecommendFailure(String msg) {
+        isLoading = false;
+
+    }
+
+    @Override
+    public void onLoadRecommendSuccess(ArrayList<Post> recommendList) {
+        isLoading = false;
+        if (null == recommendList){
+            posts = new ArrayList<>(0);
+        } else {
+            posts = recommendList;
+        }
+        showData();
+    }
+
+    @Override
+    public void onItemClicked(int position, Post post) {
+        Intent intent = new Intent(getActivity(), PostActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(getString(R.string.tag_post),post);
+        intent.putExtras(bundle);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onItemUserClicked(int userId) {
+        Intent intent = new Intent(getActivity(), UserCenterActivity.class);
+        intent.putExtra(getString(R.string.usercenter_tag_userid),userId);
+        startActivity(intent);
     }
 }

@@ -1,17 +1,22 @@
 package com.mckuai.imc.Adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
 import com.mckuai.imc.Bean.Post;
 import com.mckuai.imc.R;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 import java.util.ArrayList;
 
@@ -53,8 +58,6 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
             videoList.addAll(posts);
             notifyItemRangeInserted(start,posts.size());
         }
-        this.videoList = posts;
-        notifyDataSetChanged();
     }
 
 
@@ -71,7 +74,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
         final Post post = videoList.get(position);
         if (null != post){
             if (null == loader){
@@ -79,8 +82,32 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
             }
             //预览图
             if (null == holder.video_cover.getTag() || !holder.video_cover.getTag().equals(post.getMobilePic())) {
-                loader.displayImage(post.getMobilePic(), holder.video_cover,normalOperation);
-                holder.video_cover.setTag(post.getMobilePic());
+                loader.displayImage(post.getMobilePic(), holder.video_cover,normalOperation,new SimpleImageLoadingListener(){
+                    @Override
+                    public void onLoadingStarted(String imageUri, View view) {
+                        holder.video_cover.setImageResource(R.mipmap.ic_usercover_default);
+                    }
+
+                    @Override
+                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+
+                        if (null != loadedImage){
+                            int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
+                            float scal =  screenWidth / loadedImage.getWidth();
+                            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(screenWidth,(int)(loadedImage.getHeight() * scal));
+                            holder.video_cover.setLayoutParams(params);
+                            holder.video_cover.setImageResource(R.mipmap.videocover_mask);
+                            holder.video_cover.setBackgroundDrawable(new BitmapDrawable(loadedImage));
+                            holder.video_cover.setTag(post.getMobilePic());
+                        }
+                    }
+
+                    @Override
+                    public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                        holder.video_cover.setImageResource(R.mipmap.videocover_mask);
+                        holder.video_cover.setBackgroundResource(R.mipmap.ic_empty);
+                    }
+                });
             }
             //头像
             if (null == holder.video_ownercover.getTag() || (int)holder.video_ownercover.getTag() != post.getUserId()){
@@ -97,6 +124,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
             //回复数
             holder.video_replycount.setText(post.getReplyNumEx());
             holder.video_replytime.setText(post.getLastReplyTime());
+            holder.video_title.setText(post.getTalkTitle());
             Post tag = (Post) holder.itemView.getTag();
             if (null != listener && (null == tag || tag.getId() != post.getId())){
                 holder.itemView.setTag(post);
@@ -116,6 +144,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
         public AppCompatTextView video_ownername;
         public AppCompatTextView video_replycount;
         public AppCompatTextView video_replytime;
+        public AppCompatTextView video_title;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -124,6 +153,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
             video_ownername = (AppCompatTextView) itemView.findViewById(R.id.video_ownername);
             video_replycount = (AppCompatTextView) itemView.findViewById(R.id.video_replycount);
             video_replytime = (AppCompatTextView) itemView.findViewById(R.id.video_replytime);
+            video_title = (AppCompatTextView) itemView.findViewById(R.id.vidio_title);
         }
     }
 
@@ -133,7 +163,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
             case R.id.video_ownercover:
             case R.id.video_ownername:
                 if (null != listener){
-                    listener.onItemUserClicked(v.getId());
+                    listener.onItemUserClicked((int)v.getTag());
                 }
                 break;
         }

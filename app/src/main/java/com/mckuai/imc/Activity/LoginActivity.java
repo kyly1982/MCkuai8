@@ -2,6 +2,8 @@ package com.mckuai.imc.Activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.widget.AppCompatTextView;
 import android.view.View;
 
@@ -93,32 +95,25 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
             @Override
             public void onInitError() {
                 MobclickAgent.onEvent(LoginActivity.this, "chatLogin_F");
-                loginMsg.setText(R.string.login_IM_Err_UnInit);
+                handler.sendEmptyMessage(1);
             }
 
             @Override
             public void onTokenIncorrect() {
                 MobclickAgent.onEvent(LoginActivity.this, "chatLogin_F");
-                loginMsg.setText(getResources().getString(R.string.login_IM_Err,getResources().getString(R.string.im_Err_TokenIncorrect)));
-                showError(R.string.tryReLogin, R.string.reLogin, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mApplication.logout();
-                        isFullLoginNeed = true;
-                        onClick(findViewById(R.id.login_qqlogin));
-                    }
-                });
+                mApplication.user.setLoginToken(null);
+                handler.sendEmptyMessage(2);
         }
 
             @Override
             public void onLoginFailure(String msg) {
                 MobclickAgent.onEvent(LoginActivity.this, "chatLogin_F");
-                loginMsg.setText(getResources().getString(R.string.login_IM_Err,msg));
+                handler.sendEmptyMessage(3);
             }
 
             @Override
             public void onLoginSuccess(String msg) {
-                handleResult(true);
+                handler.sendEmptyMessage(4);
                 MobclickAgent.onEvent(LoginActivity.this, "chatLogin_S");
             }
         });
@@ -188,5 +183,38 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
             loginMsg.setText(getResources().getString(R.string.qq_err,msg));
         }
     }
+
+    private Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what){
+                case 1:
+                    loginMsg.setText(R.string.login_IM_Err_UnInit);
+                    break;
+                case 2:
+                    loginMsg.setText(getResources().getString(R.string.login_IM_Err,getResources().getString(R.string.im_Err_TokenIncorrect)));
+                    showError(R.string.tryReLogin, R.string.reLogin, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mApplication.logout();
+                            isFullLoginNeed = true;
+//                            onClick(findViewById(R.id.login_qqlogin));
+                            loginToQQ();
+                        }
+                    });
+                    break;
+                case 3:
+                    loginMsg.setText(getResources().getString(R.string.login_IM_Err,msg));
+                    break;
+                case 4:
+                    handleResult(true);
+                    break;
+                default:
+                    super.handleMessage(msg);
+                    break;
+            }
+
+        }
+    };
 }
 

@@ -22,6 +22,7 @@ import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 
 import com.mckuai.imc.Base.BaseActivity;
+import com.mckuai.imc.Bean.User;
 import com.mckuai.imc.Fragment.MainFragment_Chat;
 import com.mckuai.imc.Fragment.MainFragment_Community;
 import com.mckuai.imc.Fragment.MainFragment_Recommend;
@@ -172,7 +173,20 @@ public class MainActivity extends BaseActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         item.setChecked(true);
-        switch (item.getItemId()){
+        if (nav_video.isChecked()){
+            switch (item.getItemId()){
+                case R.id.action_new:
+                    type_new.setVisible(false);
+                    type_hot.setVisible(true);
+                    break;
+                case R.id.action_hot:
+                    type_hot.setVisible(false);
+                    type_new.setVisible(true);
+                    break;
+            }
+            ((MainFragment_Video)fragments.get(1)).setVideoType(item.getItemId());
+        }
+       /* switch (item.getItemId()){
             case R.id.action_hot:
                 break;
             case R.id.action_new:
@@ -189,7 +203,7 @@ public class MainActivity extends BaseActivity
                 break;
             case R.id.action_online:
                 break;
-        }
+        }*/
         return true;
     }
 
@@ -322,7 +336,8 @@ public class MainActivity extends BaseActivity
         if (mApplication.isLogin()){
             Intent intent = new Intent(this, SearchActivity.class);
             Bundle bundle = new Bundle();
-            bundle.putSerializable("PACKAGE",mApplication.getUser());
+
+            bundle.putSerializable("PACKAGE",new User(mApplication.user));
             intent.putExtras(bundle);
             intent.putExtra("TYPE",1);
             startActivity(intent);
