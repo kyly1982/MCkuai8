@@ -19,13 +19,13 @@ import java.util.ArrayList;
 /**
  * Created by kyly on 2016/2/1.
  */
-public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder> {
+public class FriendAdapter_new extends RecyclerView.Adapter<FriendAdapter_new.ViewHolder> {
     private ArrayList<MCUser> friends;
     private Context context;
     private ImageLoader loader;
     private OnItemClickListener listener;
 
-    public FriendAdapter(Context context, OnItemClickListener listener) {
+    public FriendAdapter_new(Context context, OnItemClickListener listener) {
         this.context = context;
         this.listener = listener;
         loader = ImageLoader.getInstance();

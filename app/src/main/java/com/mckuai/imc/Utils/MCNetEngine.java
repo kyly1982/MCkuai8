@@ -24,6 +24,8 @@ import com.mckuai.imc.Bean.Page;
 import com.mckuai.imc.Bean.Post;
 import com.mckuai.imc.Bean.PostListBean;
 import com.mckuai.imc.Bean.Recommend;
+import com.mckuai.imc.Bean.SearchPost;
+import com.mckuai.imc.Bean.SearchUser;
 import com.mckuai.imc.Bean.User;
 import com.mckuai.imc.Bean.VideoBean;
 import com.mckuai.imc.R;
@@ -79,6 +81,96 @@ public class MCNetEngine {
             client.dispatcher().cancelAll();
         }
     }
+
+    /***************************************************************************
+     * 收藏的帖子
+     ***************************************************************************/
+
+    public interface OnLoadFavoritesListener{
+        void onLoadFavoritesSuccess(ArrayList<Post> posts,Page page);
+        void OnLoadFavoritesFailure(String msg);
+    }
+
+    public void loadFavorites(final Context context,int userId,int page,final OnLoadFavoritesListener listener){
+        String url = domainName + "interface.do?act=collectTalk";
+        RequestParams params = new RequestParams();
+        params.put("id", userId);
+        params.put("page", page);
+        httpClient.post(url,params,new JsonHttpResponseHandler(){
+            @Override
+            public void onStart() {
+
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                ParseResponse result = new ParseResponse(context,response);
+                SearchPost favorites = gson.fromJson(result.msg, SearchPost.class);
+                if (null != favorites){
+                    Page temp = new Page(favorites.getAllCount(),favorites.getPage(),favorites.getPageSize());
+                    listener.onLoadFavoritesSuccess(favorites.getData(),temp);
+                } else {
+                    listener.OnLoadFavoritesFailure(context.getString(R.string.error_parsefalse));
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                listener.OnLoadFavoritesFailure(context.getString(R.string.error_requestfalse, throwable.getLocalizedMessage()));
+            }
+        });
+
+    }
+
+    /***************************************************************************
+     *搜索
+     ***************************************************************************/
+
+    public interface OnSearchListener{
+        void onSearchUserSuccess(ArrayList<MCUser> posts,Page page);
+        void onSearchPostSuccess(ArrayList<Post> posts,Page page);
+        void onSearchFailure(String msg);
+    }
+
+    public void search(final Context context, final boolean isSearchPost, String key, final int page, final OnSearchListener listener){
+        String url = domainName +"interface.do?act=search";
+        RequestParams params = new RequestParams();
+        params.put("key", key);
+        params.put("type", isSearchPost ? "talk" : "people");
+        httpClient.post(url,params,new JsonHttpResponseHandler(){
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                super.onSuccess(statusCode, headers, response);
+                ParseResponse result = new ParseResponse(context,response);
+                if (result.isSuccess){
+                    if (isSearchPost){
+                        SearchPost post = gson.fromJson(result.msg, SearchPost.class);
+                        if (null != post){
+                            Page temp = new Page(post.getAllCount(),post.getPage(),post.getPageSize());
+                            listener.onSearchPostSuccess(post.getData(),temp);
+                        } else {
+                            listener.onSearchFailure(context.getString(R.string.error_parsefalse));
+                        }
+                    } else {
+                        SearchUser user = gson.fromJson(result.msg, SearchUser.class);
+                        if (null != user) {
+                            Page temp = new Page(user.getAllCount(), user.getPage(), user.getPageSize());
+                            listener.onSearchUserSuccess(user.getData(),temp);
+                        } else {
+                            listener.onSearchFailure(context.getString(R.string.error_parsefalse));
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                listener.onSearchFailure(context.getString(R.string.error_requestfalse, throwable.getLocalizedMessage()));
+            }
+        });
+    }
+
 
     /***************************************************************************
      *推荐页接口

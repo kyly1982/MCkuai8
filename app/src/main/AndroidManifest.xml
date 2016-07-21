@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.mckuai.imc">
+    package="com.mckuai.imc">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -38,35 +38,29 @@
             android:label="${APP_NAME}"
             android:screenOrientation="portrait">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
-
-        <activity android:name=".Activity.LoginActivity"
-                  android:screenOrientation="portrait"
-                  />
-
-        <activity android:name=".Activity.PostActivity"
-                  android:screenOrientation="portrait"
-                  />
-        <activity android:name=".Activity.PublishPostActivity"
-                  android:screenOrientation="portrait"
-                  />
-
-        <activity android:name=".Activity.SearchActivity"
-                  android:screenOrientation="portrait"
-                  />
-
-        <activity android:name=".Activity.UserCenterActivity"
-                  android:screenOrientation="portrait"
-                  />
-
-        <activity android:name=".Activity.ProfileEditerActivity"
-                  android:screenOrientation="portrait"
-                  />
+        <activity
+            android:name=".Activity.LoginActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Activity.PostActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Activity.PublishPostActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Activity.SearchActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Activity.UserCenterActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Activity.ProfileEditerActivity"
+            android:screenOrientation="portrait" />
 
         <!-- ********************************************配置腾讯的相关SDK******************************************** -->
         <activity
@@ -75,7 +69,6 @@
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-
         <activity
             android:name="com.tencent.tauth.AuthActivity"
             android:launchMode="singleTask"
@@ -123,8 +116,6 @@
             android:name="UMENG_CHANNEL"
             android:value="${UMENG_CHANNEL_VALUE}" />
 
-
-
         <!-- 会话列表 -->
         <activity
             android:name=".Activity.ConversationActivity"
@@ -158,7 +149,10 @@
                     android:scheme="rong" />
             </intent-filter>
         </activity>
-
+        <activity
+            android:name=".Activity.SearchActivity2"
+            android:label="@string/title_activity_search2"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

@@ -328,7 +328,7 @@ public class MainActivity extends BaseActivity
 
     private void showSearch(){
         Intent intent = new Intent(this, SearchActivity.class);
-        intent.putExtra("TYPE",0);
+        intent.putExtra("TYPE",1);
         startActivity(intent);
     }
 
@@ -339,7 +339,7 @@ public class MainActivity extends BaseActivity
 
             bundle.putSerializable("PACKAGE",new User(mApplication.user));
             intent.putExtras(bundle);
-            intent.putExtra("TYPE",1);
+            intent.putExtra("TYPE",0);
             startActivity(intent);
         } else {
             showMessage("登录后才能使用背包，是否登录？", "登录", new View.OnClickListener() {

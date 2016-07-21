@@ -19,7 +19,7 @@ import com.malinskiy.superrecyclerview.SuperRecyclerView;
 
 import com.mckuai.imc.Adapter.CommunityDynamicAdapter;
 import com.mckuai.imc.Adapter.CommunityMessageAdapter;
-import com.mckuai.imc.Adapter.FriendAdapter;
+import com.mckuai.imc.Adapter.FriendAdapter_new;
 import com.mckuai.imc.Adapter.PostAdapter;
 import com.mckuai.imc.Base.BaseActivity;
 import com.mckuai.imc.Base.MCKuai;
@@ -53,7 +53,7 @@ public class UserCenterActivity extends BaseActivity
     private CommunityDynamicAdapter communityDynamicAdapter;
     private CommunityMessageAdapter communityMessageAdapter;
     private PostAdapter communityWorkAdapter;
-    private FriendAdapter friendAdapter;
+    private FriendAdapter_new friendAdapter;
     private Page communityDynamicPage;
     private Page communityMessagePage;
     private Page communityWorkPage;
@@ -588,7 +588,7 @@ public class UserCenterActivity extends BaseActivity
             showDataView(false);
         }
         if (null == friendAdapter) {
-            friendAdapter = new FriendAdapter(this, new FriendAdapter.OnItemClickListener() {
+            friendAdapter = new FriendAdapter_new(this, new FriendAdapter_new.OnItemClickListener() {
                 @Override
                 public void onItemClicked(MCUser user) {
                     resetUser(new User(user));
