@@ -22,7 +22,6 @@ import java.util.ArrayList;
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     private ArrayList<Post> posts;
     private Context context;
-    private LayoutInflater inflater;
     private OnItemClickListener listener;
     private ImageLoader imageLoader;
 
@@ -34,14 +33,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
     public PostAdapter(Context context) {
         this.context = context;
-        this.inflater = LayoutInflater.from(context);
         this.imageLoader = ImageLoader.getInstance();
     }
 
     public PostAdapter(Context context, OnItemClickListener listener) {
         this.listener = listener;
         this.context = context;
-        this.inflater = LayoutInflater.from(context);
         this.imageLoader = ImageLoader.getInstance();
     }
 
@@ -51,10 +48,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     }
 
     public void addData(ArrayList<Post> posts) {
-        if (null == this.posts) {
-            this.posts = posts;
-            notifyDataSetChanged();
-        } else {
+        if (null != this.posts) {
             int position = this.posts.size();
             this.posts.addAll(posts);
             notifyItemRangeInserted(position, posts.size());
@@ -64,7 +58,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = inflater.inflate(R.layout.item_post, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.item_post, parent, false);
         ViewHolder holder = new ViewHolder(view);
         return holder;
     }
@@ -77,11 +71,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
                 holder.title.setText(post.getTalkTitle() + "");
                 holder.replycount.setText(post.getReplyNumEx());
                 holder.updatetime.setText(post.getLastReplyTime());
+                //精华
                 if (post.isEssence()) {
                     holder.postlable_essence.setVisibility(View.VISIBLE);
                 } else {
                     holder.postlable_essence.setVisibility(View.GONE);
                 }
+                //推荐
                 if (post.isTop()) {
                     holder.postlable_top.setVisibility(View.VISIBLE);
                 } else {
@@ -89,6 +85,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
                 }
 
                 if (0 == post.getUserId()) {
+                    //个人中心中的作品
                     if (null != post.getIcon() && 10 < post.getIcon().length()){
                         imageLoader.displayImage(post.getIcon(), holder.usercover, MCKuai.instence.getCircleOptions());
                     }
@@ -105,6 +102,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
                         });
                     }
                 } else {
+                    //其它地方展示的帖子
                     if (null != post.getHeadImg() && 10 < post.getHeadImg().length()) {
                         imageLoader.displayImage(post.getHeadImg(), holder.usercover, MCKuai.instence.getCircleOptions());
                     }

@@ -38,6 +38,7 @@
         android:layout_alignTop="@id/postowner_cover"
         android:layout_alignBottom="@id/postowner_cover"
         android:drawableLeft="@mipmap/ic_reply_big"
+        android:drawablePadding="@dimen/padding_content"
         android:layout_centerHorizontal="true"
         android:singleLine="true"
         android:gravity="center"

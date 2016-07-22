@@ -3,9 +3,10 @@ package com.mckuai.imc.Fragment;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import android.view.ViewGroup;
 import com.malinskiy.superrecyclerview.SuperRecyclerView;
 import com.mckuai.imc.Activity.LoginActivity;
 import com.mckuai.imc.Adapter.ConversationAdapter;
+import com.mckuai.imc.Base.BaseFragment;
 import com.mckuai.imc.Base.MCKuai;
 import com.mckuai.imc.Bean.Conversation;
 import com.mckuai.imc.Bean.User;
@@ -25,25 +27,17 @@ import java.util.ArrayList;
 import io.rong.imkit.RongIM;
 import io.rong.imlib.RongIMClient;
 
-public class MainFragment_Chat extends BaseFragment implements ConversationAdapter.OnItemClickListener{
+public class MainFragment_Chat extends BaseFragment implements ConversationAdapter.OnItemClickListener {
     private ArrayList<Conversation> conversations;
-    // private ArrayList<User> users;
-    private View view;
     private SuperRecyclerView conversationList;
-    private AppCompatTextView unloginHint;
     private ConversationAdapter adapter;
-    private MCKuai application;
-    private User user;
-    //private boolean isRegReciver = false;
 
     public MainFragment_Chat() {
-        application = MCKuai.instence;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        application = MCKuai.instence;
     }
 
     @Override
@@ -51,10 +45,6 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
                              Bundle savedInstanceState) {
         if (null == view) {
             view = inflater.inflate(R.layout.fragment_main_chat, container, false);
-        }
-
-        if (null == unloginHint) {
-            unloginHint = (AppCompatTextView) view.findViewById(R.id.unlogin);
         }
         return view;
     }
@@ -65,14 +55,6 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
         super.onResume();
         if (null != view && null == conversationList) {
             initView();
-        }
-       /* if (!isRegReciver && application.isIMLogined){
-            RongIM.setOnReceiveMessageListener(this);
-            isRegReciver = true;
-        }*/
-
-        if (application.isLogin()){
-            showData();
         }
     }
 
@@ -92,42 +74,55 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
         conversationList.getRecyclerView().setHasFixedSize(true);
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         conversationList.setLayoutManager(manager);
-        conversationList.hideProgress();
-        conversationList.hideMoreProgress();
-        RecyclerView.LayoutManager manager1 = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+
+        conversationList.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+                int height = getResources().getDimensionPixelOffset(R.dimen.dividerSecondary);
+                outRect.set(0, 0, 0, height);
+            }
+
+            @Override
+            public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+                super.onDraw(c, parent, state);
+                c.drawColor(getResources().getColor(R.color.dividerColorPrimary));
+            }
+
+            @Override
+            public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
+                super.onDrawOver(c, parent, state);
+            }
+        });
+
         conversationList.setRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getConversation();
+                if (mApplication.isLogin()) {
+                    getConversation();
+                }
             }
         });
     }
 
     private void showData() {
-
-        if (MCKuai.instence.isLogin()) {
-            unloginHint.setVisibility(View.GONE);
-            conversationList.setVisibility(View.VISIBLE);
-            getConversation();
+        if (null != conversations) {
             if (null == adapter) {
                 adapter = new ConversationAdapter(getActivity(), this);
-            } else {
-                adapter.setData(conversations);
                 conversationList.setAdapter(adapter);
-                conversationList.hideMoreProgress();
-                conversationList.hideProgress();
             }
+            adapter.setData(conversations);
         } else {
-            unloginHint.setVisibility(View.VISIBLE);
-            conversationList.setVisibility(View.GONE);
-            callLogin(0);
+            getConversation();
         }
-
     }
 
 
     private void getConversation() {
-        if (null != RongIM.getInstance() && null != RongIM.getInstance().getRongIMClient()) {
+        conversations = new ArrayList<Conversation>(0);
+        if (!mApplication.isLogin()) {
+            callLogin(1);
+            return;
+        } else if (null != RongIM.getInstance() && null != RongIM.getInstance().getRongIMClient()) {
             if (RongIM.getInstance().getRongIMClient().getCurrentConnectionStatus() == RongIMClient.ConnectionStatusListener.ConnectionStatus.CONNECTED) {
                 ArrayList<io.rong.imlib.model.Conversation> list = (ArrayList<io.rong.imlib.model.Conversation>) RongIM.getInstance().getRongIMClient().getConversationList();
 
@@ -138,7 +133,7 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
                         conversation.setConversation(imConversation);
                         //聊天对象信息
                         String id = imConversation.getTargetId();
-                        User tempUser = application.daoHelper.getUserByName(id);
+                        User tempUser = mApplication.daoHelper.getUserByName(id);
                         if (null == tempUser) {
                             tempUser = new User();
                             tempUser.setName(id);
@@ -147,28 +142,25 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
                         } else {
                             conversation.setTarget(tempUser);
                         }
-                        if (conversation.getConversation().getUnreadMessageCount() > 0){
-                            conversations.add(0,conversation);
+                        if (conversation.getConversation().getUnreadMessageCount() > 0) {
+                            conversations.add(0, conversation);
                         } else {
-                            conversations.add(0 == conversations.size() ? 0:conversations.size() - 1,conversation);
+                            conversations.add(0 == conversations.size() ? 0 : conversations.size() - 1, conversation);
                         }
                     }
                     if (null != conversationList) {
                         conversationList.hideProgress();
                     }
-                } else {
-                    conversations = new ArrayList<Conversation>(0);
                 }
             } else {
                 //聊天服务器未连接上
-                //showMessage("正在连接聊天服务器,请稍后!", null, null);
                 RongIM.connect(MCKuai.instence.user.getToken(), new RongIMClient.ConnectCallback() {
                     @Override
                     public void onTokenIncorrect() {
                         showMessage("用户令牌失效，需要重新登录，是否登录？", "登录", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                callLogin(2);
+                                callLogin(0);
                                 return;
                             }
                         });
@@ -188,9 +180,8 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
             }
         } else {
             showMessage("聊天服务故障，请重新启动软件！", null, null);
-            unloginHint.setVisibility(View.VISIBLE);
-            conversationList.setVisibility(View.GONE);
         }
+        showData();
     }
 
     private void callLogin(int requestcode) {
@@ -205,7 +196,6 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
     }
 
 
-
     private void updateUserInfo(User user) {
         for (int i = 0; i < conversations.size(); i++) {
             User tempUser = conversations.get(i).getTarget();
@@ -217,7 +207,6 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
             }
         }
     }
-
 
 
     @Override
@@ -238,7 +227,7 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
         }
     }
 
-    public void onNewMsgRecived(){
+    public void onNewMsgRecived() {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {

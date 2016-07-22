@@ -107,7 +107,7 @@ public class User implements Serializable{
     }
 
     public String getNickEx(){
-        if (null != getNickEx() && getNickEx().length() > 0 && !getNickEx().equalsIgnoreCase("null")) {
+        if (null != getNick() && getNick().length() > 0 && !getNick().equalsIgnoreCase("null")) {
             return nick;
         }
         return name;

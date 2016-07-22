@@ -1,6 +1,8 @@
 package com.mckuai.imc.Fragment;
 
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -14,6 +16,7 @@ import com.malinskiy.superrecyclerview.SuperRecyclerView;
 import com.mckuai.imc.Activity.PostActivity;
 import com.mckuai.imc.Activity.UserCenterActivity;
 import com.mckuai.imc.Adapter.RecommendAdapter;
+import com.mckuai.imc.Base.BaseFragment;
 import com.mckuai.imc.Bean.Post;
 import com.mckuai.imc.R;
 import com.mckuai.imc.Utils.MCNetEngine;
@@ -35,6 +38,7 @@ public class MainFragment_Recommend extends BaseFragment implements SwipeRefresh
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (null == listView){
             listView = (SuperRecyclerView) inflater.inflate(R.layout.fragment_list,container,false);
+            view = listView;
         }
         return listView;
     }
@@ -56,6 +60,24 @@ public class MainFragment_Recommend extends BaseFragment implements SwipeRefresh
     private void initVew(){
         layoutManager = new StaggeredGridLayoutManager(1,StaggeredGridLayoutManager.VERTICAL);
         listView.setLayoutManager(layoutManager);
+        listView.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+                int height = getResources().getDimensionPixelOffset(R.dimen.dividerPrimary);
+                outRect.set(0,0,0,height);
+            }
+
+            @Override
+            public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+                super.onDraw(c, parent, state);
+                c.drawColor(getResources().getColor(R.color.dividerColorPrimary));
+            }
+
+            @Override
+            public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
+                super.onDrawOver(c, parent, state);
+            }
+        });
         listView.setLoadingMore(false);
         listView.setRefreshListener(this);
     }

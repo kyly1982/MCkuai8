@@ -23,7 +23,7 @@
 
     <!--个人中心-->
     <dimen name="usercenter_header_height">100dp</dimen>
-    <dimen name="usercneter_usercover_width">64dp</dimen>
+    <dimen name="usercneter_usercover_width">100dp</dimen>
     <dimen name="usercenter_chatbutton_height">40dp</dimen>
     <dimen name="usercenter_item_cartoon_height">81dp</dimen>
     <dimen name="usercenter_item_layoutpadding">5dp</dimen>
@@ -53,12 +53,17 @@
     <dimen name="item_recommend_height">189dp</dimen>
     <dimen name="group_divider_height">26dp</dimen>
     <dimen name="item_divider_height">11dp</dimen>
+
+
     <dimen name="app_bar_height">180dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="text_margin">16dp</dimen>
 
     <dimen name="item_friend_height">70dp</dimen>
     <dimen name="item_friend_paddingtop">15dp</dimen>
+
+    <dimen name="dividerPrimary">5dp</dimen>
+    <dimen name="dividerSecondary">1dp</dimen>
 
 
 </resources>

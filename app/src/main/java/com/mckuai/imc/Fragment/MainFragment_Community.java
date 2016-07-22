@@ -1,10 +1,13 @@
 package com.mckuai.imc.Fragment;
 
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +20,7 @@ import com.mckuai.imc.Activity.PublishPostActivity;
 import com.mckuai.imc.Activity.UserCenterActivity;
 import com.mckuai.imc.Adapter.ForumAdapter;
 import com.mckuai.imc.Adapter.PostAdapter;
+import com.mckuai.imc.Base.BaseFragment;
 import com.mckuai.imc.Base.MCKuai;
 import com.mckuai.imc.Bean.ForumInfo;
 import com.mckuai.imc.Bean.Page;
@@ -30,7 +34,6 @@ import java.util.ArrayList;
 
 public class MainFragment_Community extends BaseFragment
         implements View.OnClickListener,MCNetEngine.OnForumListResponseListener,MCNetEngine.OnPostListResponseListener,ForumAdapter.OnItemClickListener,PostAdapter.OnItemClickListener,RadioGroup.OnCheckedChangeListener {
-    private View view;
     private Page page;
     private ArrayList<ForumInfo> mForums;
     private ArrayList<Post> mPosts;
@@ -90,6 +93,25 @@ public class MainFragment_Community extends BaseFragment
         mPostList = (SuperRecyclerView) view.findViewById(R.id.community_postlist);
         mCreatePost = (AppCompatImageButton) view.findViewById(R.id.community_createpost);
         postGroup = (RadioGroup) view.findViewById(R.id.posttype_indicator);
+
+        mPostList.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+                int height = getResources().getDimensionPixelOffset(R.dimen.dividerSecondary);
+                outRect.set(0,0,0,height);
+            }
+
+            @Override
+            public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+                super.onDraw(c, parent, state);
+                c.drawColor(getResources().getColor(R.color.dividerColorPrimary));
+            }
+
+            @Override
+            public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
+                super.onDrawOver(c, parent, state);
+            }
+        });
 
         mForumList.getRecyclerView().setHasFixedSize(true);
         mPostList.getRecyclerView().setHasFixedSize(true);

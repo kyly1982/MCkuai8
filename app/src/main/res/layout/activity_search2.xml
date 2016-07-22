@@ -28,9 +28,45 @@
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin"
                 app:popupTheme="@style/AppTheme.PopupOverlay" >
-
-
                 </android.support.v7.widget.Toolbar>
+            <RelativeLayout
+                android:id="@+id/header"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@null">
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/usercover"
+                    android:layout_width="@dimen/usercneter_usercover_width"
+                    android:layout_height="@dimen/usercneter_usercover_width"
+                    android:layout_centerInParent="true"
+                    android:scaleType="fitXY"
+                    android:src="@mipmap/ic_usercover_default"/>
+
+                <View
+                    android:id="@+id/center"
+                    android:layout_width="10dp"
+                    android:layout_height="14dp"
+                    android:background="@color/colorAccent"
+                    android:layout_below="@id/usercover"
+                    />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/userlevel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_alignBottom="@id/center"
+                    android:background="@drawable/bg_usercenter_level"
+                    android:gravity="center"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"
+                    android:text="lv 1"
+                    android:minWidth="45dp"
+                    android:textColor="@color/color_white"/>
+            </RelativeLayout>
+
+
 
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
@@ -38,18 +74,12 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        >
-
-        <View
-            android:id="@+id/center"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_centerInParent="true"/>
-
-
+        android:background="@color/colorAccent"
+        android:visibility="gone">
 
     </RelativeLayout>
+
+
 
     <com.malinskiy.superrecyclerview.SuperRecyclerView
         android:id="@+id/listview"

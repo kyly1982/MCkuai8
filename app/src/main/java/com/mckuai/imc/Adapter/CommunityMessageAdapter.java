@@ -35,19 +35,14 @@ public class CommunityMessageAdapter extends RecyclerView.Adapter<CommunityMessa
         this.loader = ImageLoader.getInstance();
     }
 
-    public void setData(ArrayList<CommunityMessage> messages){
-        this.messages = messages;
-        notifyDataSetChanged();
-    }
-
-    public void addData(ArrayList<CommunityMessage> messages){
-        if (null == this.messages){
+    public void setData(ArrayList<CommunityMessage> messages,boolean isRefresh){
+        if (null == this.messages || isRefresh){
             this.messages = messages;
             notifyDataSetChanged();
-        } else {
-            int position = this.messages.size();
+        } else if (null != messages){
+            int start = this.messages.size();
             this.messages.addAll(messages);
-            notifyItemRangeInserted(position,messages.size());
+            notifyItemRangeInserted(start,messages.size());
         }
     }
 

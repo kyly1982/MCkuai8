@@ -553,7 +553,6 @@ public class MCNetEngine {
      ***************************************************************************/
     public interface OnLoadCommunityDynamicResponseListener {
         void onLoadCommunityDynamicSuccess(ArrayList<CommunityDynamic> dynamics, User user, Page page);
-
         void onLoadCommunityDynamicFailure(String msg);
     }
 
@@ -570,7 +569,7 @@ public class MCNetEngine {
                 if (null != result && result.length() > 10) {
                     CommunityDynamicBean bean = gson.fromJson(result, CommunityDynamicBean.class);
                     Page page = new Page(bean.getList().getAllCount(), bean.getList().getPage(), bean.getList().getPageSize());
-                    listener.onLoadCommunityDynamicSuccess(bean.getList().getData(), bean.getUser(), page);
+                    listener.onLoadCommunityDynamicSuccess(bean.getList().getData(), new User(bean.getUser()), page);
                 }
             }
 
@@ -581,7 +580,7 @@ public class MCNetEngine {
                     CommunityDynamicBean bean = gson.fromJson(result.msg, CommunityDynamicBean.class);
                     if (null != bean && null != bean.getList() && null != bean.getUser()) {
                         Page page = new Page(bean.getList().getAllCount(), bean.getList().getPage(), bean.getList().getPageSize());
-                        listener.onLoadCommunityDynamicSuccess(bean.getList().getData(), bean.getUser(), page);
+                        listener.onLoadCommunityDynamicSuccess(bean.getList().getData(), new User(bean.getUser()), page);
                         daoHelper.addUser(bean.getUser());
                         if (page.getPage() == 1 && application.isLogin() && application.user.getId() == bean.getUser().getId()) {
                             cache.put(url, params, result.msg);

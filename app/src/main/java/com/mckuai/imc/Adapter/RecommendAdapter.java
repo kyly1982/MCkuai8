@@ -70,8 +70,8 @@ public class RecommendAdapter extends RecyclerView.Adapter<RecommendAdapter.View
                     @Override
                     public void onLoadingStarted(String imageUri, View view) {
 //                        super.onLoadingStarted(imageUri, view);
-                        holder.cover.setImageResource(R.mipmap.videocover_mask);
-                        holder.cover.setBackgroundResource(R.mipmap.videocover_mask);
+                        holder.cover.setImageResource(R.mipmap.ic_empty);
+                        holder.cover.setBackgroundResource(R.drawable.mask);
                     }
 
                     @Override
@@ -87,8 +87,8 @@ public class RecommendAdapter extends RecyclerView.Adapter<RecommendAdapter.View
 
                     @Override
                     public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-                        holder.cover.setBackgroundResource(R.mipmap.ic_empty);
-                        holder.cover.setImageResource(R.mipmap.videocover_mask);
+                        holder.cover.setImageResource(R.mipmap.ic_empty);
+                        holder.cover.setBackgroundResource(R.drawable.mask);
                     }
                 });
                 loader.displayImage(post.getHeadImg(),holder.ownercover,circle);

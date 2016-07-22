@@ -85,8 +85,8 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
                 loader.displayImage(post.getMobilePic(), holder.video_cover,normalOperation,new SimpleImageLoadingListener(){
                     @Override
                     public void onLoadingStarted(String imageUri, View view) {
-                        holder.video_cover.setImageResource(R.mipmap.videocover_mask);
-                        holder.video_cover.setBackgroundResource(R.mipmap.videocover_mask);
+                        holder.video_cover.setImageResource(R.mipmap.ic_empty);
+                        holder.video_cover.setBackgroundResource(R.drawable.mask);
                     }
 
                     @Override
@@ -105,8 +105,8 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
 
                     @Override
                     public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-                        holder.video_cover.setImageResource(R.mipmap.videocover_mask);
-                        holder.video_cover.setBackgroundResource(R.mipmap.ic_empty);
+                        holder.video_cover.setImageResource(R.mipmap.ic_empty);
+                        holder.video_cover.setBackgroundResource(R.drawable.mask);
                     }
                 });
             }

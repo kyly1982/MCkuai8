@@ -1,6 +1,8 @@
 package com.mckuai.imc.Fragment;
 
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
@@ -16,6 +18,7 @@ import com.malinskiy.superrecyclerview.SuperRecyclerView;
 import com.mckuai.imc.Activity.PostActivity;
 import com.mckuai.imc.Activity.UserCenterActivity;
 import com.mckuai.imc.Adapter.VideoAdapter;
+import com.mckuai.imc.Base.BaseFragment;
 import com.mckuai.imc.Bean.Page;
 import com.mckuai.imc.Bean.Post;
 import com.mckuai.imc.Bean.VideoBean;
@@ -29,7 +32,6 @@ import java.util.ArrayList;
  */
 public class MainFragment_Video extends BaseFragment implements
         MCNetEngine.OnLoadVideoListener,VideoAdapter.OnItemClickListener,SwipeRefreshLayout.OnRefreshListener,OnMoreListener{
-    private View view;
     private SuperRecyclerView listView;
     private RecyclerView.LayoutManager layoutManager;
 
@@ -73,6 +75,24 @@ public class MainFragment_Video extends BaseFragment implements
         listView = (SuperRecyclerView) view.findViewById(R.id.video_list);
 
         layoutManager = new StaggeredGridLayoutManager(1,StaggeredGridLayoutManager.VERTICAL);
+        listView.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+                int height = getResources().getDimensionPixelOffset(R.dimen.dividerPrimary);
+                outRect.set(0,0,0,height);
+            }
+
+            @Override
+            public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+                super.onDraw(c, parent, state);
+                c.drawColor(getResources().getColor(R.color.dividerColorPrimary));
+            }
+
+            @Override
+            public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
+                super.onDrawOver(c, parent, state);
+            }
+        });
 
         listView.setLayoutManager(layoutManager);
         listView.setLoadingMore(true);

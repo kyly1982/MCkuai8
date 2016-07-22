@@ -5,7 +5,7 @@ package com.mckuai.imc.Bean;
  */
 public class CommunityDynamicBean {
     CommunityDynamicList list;
-    User user;
+    MCUser user;
 
     public CommunityDynamicList getList() {
         return list;
@@ -15,11 +15,11 @@ public class CommunityDynamicBean {
         this.list = list;
     }
 
-    public User getUser() {
+    public MCUser getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(MCUser user) {
         this.user = user;
     }
 }

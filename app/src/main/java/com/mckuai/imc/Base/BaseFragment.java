@@ -13,6 +13,9 @@ public class BaseFragment extends Fragment {
     protected int mTitleResId;
     protected OnFragmentEventListener mOnFragmentEventListener;
     protected MCKuai mApplication = MCKuai.instence;
+    protected View view;
+
+    protected boolean isLoading = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

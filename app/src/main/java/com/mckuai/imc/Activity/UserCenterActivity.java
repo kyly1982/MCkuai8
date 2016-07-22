@@ -1,6 +1,7 @@
 package com.mckuai.imc.Activity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.AppCompatImageButton;
@@ -9,14 +10,12 @@ import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 
 import com.malinskiy.superrecyclerview.OnMoreListener;
 import com.malinskiy.superrecyclerview.SuperRecyclerView;
-
 import com.mckuai.imc.Adapter.CommunityDynamicAdapter;
 import com.mckuai.imc.Adapter.CommunityMessageAdapter;
 import com.mckuai.imc.Adapter.FriendAdapter_new;
@@ -32,6 +31,8 @@ import com.mckuai.imc.Bean.User;
 import com.mckuai.imc.R;
 import com.mckuai.imc.Utils.MCNetEngine;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 import java.util.ArrayList;
 
@@ -46,9 +47,13 @@ public class UserCenterActivity extends BaseActivity
         MCNetEngine.OnloadFriendResponseListener,
         MCNetEngine.OnAddFriendResponseListener,
         OnMoreListener,
-        SwipeRefreshLayout.OnRefreshListener {
+        SwipeRefreshLayout.OnRefreshListener,
+        CommunityMessageAdapter.OnItemClickListener,
+        CommunityDynamicAdapter.OnItemClickListener,
+        PostAdapter.OnItemClickListener,
+        FriendAdapter_new.OnItemClickListener {
     private User user;
-    private int contentTypeId = 0;//默认显示社区消息
+    private int contentTypeId = 0;//默认显示社区动态
 
     private CommunityDynamicAdapter communityDynamicAdapter;
     private CommunityMessageAdapter communityMessageAdapter;
@@ -59,6 +64,11 @@ public class UserCenterActivity extends BaseActivity
     private Page communityWorkPage;
     private Page friendPage;
 
+    private ArrayList<Post> works;
+    private ArrayList<MCUser> friends;
+    private ArrayList<CommunityMessage> messages;
+    private ArrayList<CommunityDynamic> dynamics;
+
     private ImageLoader loader;
 
     private AppCompatImageView userCover;
@@ -66,16 +76,14 @@ public class UserCenterActivity extends BaseActivity
     private LinearLayout operation;
     private AppCompatImageButton chat;
     private AppCompatImageButton addFriend;
-    private RadioGroup group;
-    private RadioGroup type;
+    private RadioGroup mainCategory;
+    private RadioGroup subCategory;
     private SuperRecyclerView list;
-    private SuperRecyclerView work;//作品布局不一样
     private AppCompatRadioButton message;
     private AppCompatRadioButton dynamic;
     private AppCompatRadioButton friend;
     private View spaceRight;
     private View spaceLeft;
-    private AppCompatTextView emptyView;
 
     private boolean checkedFriendship = false;
     private boolean isFriendShip = false;
@@ -128,21 +136,17 @@ public class UserCenterActivity extends BaseActivity
         operation = (LinearLayout) findViewById(R.id.layut_opeartion);
         chat = (AppCompatImageButton) findViewById(R.id.chat);
         addFriend = (AppCompatImageButton) findViewById(R.id.addfriend);
-        group = (RadioGroup) findViewById(R.id.group);
+        mainCategory = (RadioGroup) findViewById(R.id.mainCategory);
         friend = (AppCompatRadioButton) findViewById(R.id.friend);
-        type = (RadioGroup) findViewById(R.id.type);
+        subCategory = (RadioGroup) findViewById(R.id.subCategory);
         message = (AppCompatRadioButton) findViewById(R.id.message);
         dynamic = (AppCompatRadioButton) findViewById(R.id.dynamic);
         list = (SuperRecyclerView) findViewById(R.id.list);
-        work = (SuperRecyclerView) findViewById(R.id.worklist);
         spaceRight = findViewById(R.id.space_right);
         spaceLeft = findViewById(R.id.space_left);
-        emptyView = (AppCompatTextView) findViewById(R.id.emptyview);
 
         RecyclerView.LayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         list.setLayoutManager(linearLayoutManager);
-        RecyclerView.LayoutManager manager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        work.setLayoutManager(manager);
 
         mTitle.setTextColor(getResources().getColor(R.color.color_white));
 
@@ -150,13 +154,11 @@ public class UserCenterActivity extends BaseActivity
 
         addFriend.setOnClickListener(this);
         chat.setOnClickListener(this);
-        group.setOnCheckedChangeListener(this);
-        type.setOnCheckedChangeListener(this);
+        mainCategory.setOnCheckedChangeListener(this);
+        subCategory.setOnCheckedChangeListener(this);
 
         list.setupMoreListener(this, 1);
         list.setRefreshListener(this);
-        work.setupMoreListener(this, 1);
-        work.setRefreshListener(this);
 
     }
 
@@ -173,16 +175,17 @@ public class UserCenterActivity extends BaseActivity
     }
 
     private void changeUIByUser() {
-        contentTypeId = R.id.message;
         if (isMySelf()) {
-            group.setVisibility(View.VISIBLE);
+            contentTypeId = R.id.message;//自己，默认显示消息
+            mainCategory.setVisibility(View.VISIBLE);
             operation.setVisibility(View.GONE);
             message.setVisibility(View.VISIBLE);
             spaceRight.setVisibility(View.VISIBLE);
             spaceLeft.setVisibility(View.VISIBLE);
             message.setChecked(true);
         } else {
-            group.setVisibility(View.GONE);
+            contentTypeId = R.id.dynamic;//它人，默认显示动态
+            mainCategory.setVisibility(View.GONE);
             operation.setVisibility(View.VISIBLE);
             message.setVisibility(View.GONE);
             spaceRight.setVisibility(View.GONE);
@@ -195,62 +198,30 @@ public class UserCenterActivity extends BaseActivity
         return mApplication.isLogin() && mApplication.user.getId() == user.getId();
     }
 
-    private void loadData(boolean isRefresh) {
-        if (isLoading) {
-            return;
-        } else {
-            isLoading = true;
-        }
+    private void loadData() {
+        isLoading = true;
         switch (contentTypeId) {
-
             case R.id.message:
                 if (null == communityMessagePage) {
                     communityMessagePage = new Page();
-                } else {
-                    if (isRefresh) {
-                        communityMessagePage.setPage(0);
-                    } else {
-                        if (communityMessagePage.getPage() == communityMessagePage.getNextPage()) {
-                            hideProgress();
-                            return;
-                        }
-                    }
                 }
                 mApplication.netEngine.loadCommunityMessage(this, user.getId().intValue(), communityMessagePage.getNextPage(), this);
                 break;
             case R.id.dynamic:
                 if (null == communityDynamicPage) {
                     communityDynamicPage = new Page();
-                } else if (communityDynamicPage.getPage() == communityDynamicPage.getNextPage() && !isRefresh) {
-                    hideProgress();
-                    return;
-                }
-                if (isRefresh) {
-                    communityDynamicPage.setPage(0);
                 }
                 mApplication.netEngine.loadCommunityDynamic(this, user.getId().intValue(), communityDynamicPage.getNextPage(), this);
                 break;
             case R.id.work:
                 if (null == communityWorkPage) {
                     communityWorkPage = new Page();
-                } else if (communityWorkPage.getPage() == communityWorkPage.getNextPage() && !isRefresh) {
-                    hideProgress();
-                    return;
-                }
-                if (isRefresh) {
-                    communityWorkPage.setPage(0);
                 }
                 mApplication.netEngine.loadCommunityWork(this, user.getId().intValue(), communityWorkPage.getNextPage(), this);
                 break;
             case R.id.friend:
                 if (null == friendPage) {
                     friendPage = new Page();
-                } else if (friendPage.getPage() == friendPage.getNextPage() && !isRefresh) {
-                    hideProgress();
-                    return;
-                }
-                if (isRefresh) {
-                    friendPage.setPage(0);
                 }
                 mApplication.netEngine.loadFriendList(this, friendPage.getNextPage(), this);
                 break;
@@ -265,53 +236,96 @@ public class UserCenterActivity extends BaseActivity
         switch (contentTypeId) {
 
             case R.id.message://社区消息
-                list.setVisibility(View.VISIBLE);
-                work.setVisibility(View.GONE);
-                if (null != communityMessageAdapter) {
-                    list.setAdapter(communityMessageAdapter);
-                    communityMessageAdapter.notifyDataSetChanged();
-                } else {
-                    loadData(false);
-                }
+                showCommunityMessages();
                 break;
             case R.id.dynamic://社区动态
-                list.setVisibility(View.VISIBLE);
-                work.setVisibility(View.GONE);
-                if (null != communityDynamicAdapter) {
-                    list.setAdapter(communityDynamicAdapter);
-                    communityDynamicAdapter.notifyDataSetChanged();
-                } else {
-                    loadData(false);
-                }
+                showCommunityDynamics();
                 break;
             case R.id.work://社区作品
-                list.setVisibility(View.VISIBLE);
-                work.setVisibility(View.GONE);
-                if (null != communityWorkAdapter) {
-                    list.setAdapter(communityWorkAdapter);
-                    communityWorkAdapter.notifyDataSetChanged();
-                } else {
-                    loadData(false);
-                }
+                showWorks();
                 break;
             case R.id.friend:
-                list.setVisibility(View.VISIBLE);
-                work.setVisibility(View.GONE);
-                if (null != friendAdapter) {
-                    list.setAdapter(friendAdapter);
-                    friendAdapter.notifyDataSetChanged();
-                } else {
-                    loadData(false);
-                }
+                showFridnds();
                 break;
+        }
+    }
+
+    private void showCommunityMessages() {
+        if (null == communityMessagePage) {
+            loadData();
+            return;
+        } else if (null == communityMessageAdapter) {
+            communityMessageAdapter = new CommunityMessageAdapter(this, this);
+            list.setAdapter(communityDynamicAdapter);
+        }
+        communityMessageAdapter.setData(messages, 1 == communityMessagePage.getPage());
+        showUserInfo();
+    }
+
+    private void showCommunityDynamics() {
+        if (null == communityDynamicPage) {
+            loadData();
+            return;
+        } else if (null == communityDynamicAdapter) {
+            communityDynamicAdapter = new CommunityDynamicAdapter(this, this);
+            list.setAdapter(communityDynamicAdapter);
+        }
+        communityDynamicAdapter.setData(dynamics, 1 == communityDynamicPage.getPage());
+        showUserInfo();
+    }
+
+    private void showWorks() {
+        if (null == communityWorkPage) {
+            loadData();
+            return;
+        } else if (null == communityWorkAdapter) {
+            communityWorkAdapter = new PostAdapter(this, this);
+            list.setAdapter(communityWorkAdapter);
+        }
+        if (1 == communityWorkPage.getPage()) {
+            communityWorkAdapter.setData(works);
+        } else {
+            communityWorkAdapter.addData(works);
         }
         showUserInfo();
     }
 
+    private void showFridnds() {
+        if (null == friendPage) {
+            loadData();
+            return;
+        } else if (null == friendAdapter) {
+            friendAdapter = new FriendAdapter_new(this, this);
+            list.setAdapter(friendAdapter);
+        }
+        friendAdapter.setData(friends, 1 == friendPage.getPage());
+        showUserInfo();
+    }
+
     private void showUserInfo() {
-        if (null != user && 0 != user.getId() && null != user.getName() && null != user.getHeadImage()) {
+        if (null != user && 0 != user.getId() && null != user.getName()) {
             if (null == userCover.getTag() || !userCover.getTag().equals(user.getHeadImage()))
-                loader.displayImage(user.getHeadImage(), userCover, mApplication.getCircleOptions());
+                loader.displayImage(user.getHeadImage(), userCover, mApplication.getCircleOptions(), new SimpleImageLoadingListener() {
+                    @Override
+                    public void onLoadingStarted(String imageUri, View view) {
+                        super.onLoadingStarted(imageUri, view);
+                        userCover.setImageResource(R.mipmap.ic_usercover_default);
+                    }
+
+                    @Override
+                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                        if (null != loadedImage) {
+                            super.onLoadingComplete(imageUri, view, loadedImage);
+                        } else {
+                            userCover.setImageResource(R.mipmap.ic_usercover_default);
+                        }
+                    }
+
+                    @Override
+                    public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                        userCover.setImageResource(R.mipmap.ic_usercover_default);
+                    }
+                });
             mTitle.setText(user.getNickEx());
             userLevel.setText(getString(R.string.usercenter_userlevel, user.getLevel()));
         }
@@ -333,28 +347,20 @@ public class UserCenterActivity extends BaseActivity
         communityDynamicPage = null;
         communityWorkPage = null;
         friendPage = null;
-        work.setVisibility(View.GONE);
         list.setVisibility(View.VISIBLE);
         changeUIByUser();
         checkedFriendship = false;
         isFriendShip = false;
-        loadData(false);
-    }
-
-    private void hideProgress() {
-        list.hideProgress();
-        list.hideMoreProgress();
-        work.hideProgress();
-        work.hideMoreProgress();
+        loadData();
     }
 
     @Override
     public void onCheckedChanged(RadioGroup group, int checkedId) {
         contentTypeId = checkedId;
         if (checkedId == R.id.community) {
-            type.setVisibility(View.VISIBLE);
+            subCategory.setVisibility(View.VISIBLE);
         } else if (checkedId == R.id.friend) {
-            type.setVisibility(View.GONE);
+            subCategory.setVisibility(View.GONE);
         }
         showData();
     }
@@ -424,195 +430,88 @@ public class UserCenterActivity extends BaseActivity
 
     }
 
-    private void showEmptyView() {
-        list.setVisibility(View.GONE);
-        work.setVisibility(View.GONE);
-        emptyView.setVisibility(View.VISIBLE);
+    private void showPostDetailed(Post post) {
+        Intent intent = new Intent(UserCenterActivity.this, PostActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(getString(R.string.tag_post), post);
+        intent.putExtras(bundle);
+        startActivity(intent);
     }
 
-    private void showDataView(boolean isWork) {
-        if (emptyView.getVisibility() == View.VISIBLE) {
-            if (isWork) {
-                work.setVisibility(View.VISIBLE);
-                list.setVisibility(View.GONE);
-            } else {
-                list.setVisibility(View.VISIBLE);
-                work.setVisibility(View.GONE);
-            }
-            emptyView.setVisibility(View.GONE);
-        }
-    }
 
     @Override
     public void onLoadCommunityDynamicSuccess(ArrayList<CommunityDynamic> dynamics, User user, Page page) {
         isLoading = false;
-        if (null != user) {
-            this.user = user;
-            showUserInfo();
-        }
-        communityDynamicPage = page;
-        if (null == dynamics || dynamics.isEmpty()) {
-            showEmptyView();
-            return;
-        } else {
-            showDataView(false);
-        }
-        if (null == communityDynamicAdapter) {
-            communityDynamicAdapter = new CommunityDynamicAdapter(this, new CommunityDynamicAdapter.OnItemClickListener() {
-                @Override
-                public void onItemClicked(CommunityDynamic dynamic) {
-                    Post post = new Post();
-                    post.setId(dynamic.getId());
-                    Intent intent = new Intent(UserCenterActivity.this, PostActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable(getString(R.string.tag_post), post);
-                    intent.putExtras(bundle);
-                    startActivity(intent);
-                }
-            });
-            list.setAdapter(communityDynamicAdapter);
-        }
-        if (1 == page.getPage()) {
-            communityDynamicAdapter.setData(dynamics);
-        } else {
-            communityDynamicAdapter.addData(dynamics);
-        }
+        communityDynamicPage.clone(page);
+        this.user = user;
+        this.dynamics = dynamics;
+        showCommunityDynamics();
     }
 
     @Override
     public void onLoadCommunityDynamicFailure(String msg) {
         isLoading = false;
-        showMessage(msg, null, null);
-        if (null == communityDynamicAdapter) {
-            showEmptyView();
+        //让listview显示空视图
+        if (0 == communityDynamicPage.getPage()) {
+            dynamics = new ArrayList<>();
+            showCommunityDynamics();
         }
+        showMessage(msg, null, null);
     }
 
     @Override
     public void onLoadCommunityMessageSuccess(ArrayList<CommunityMessage> messages, User user, Page page) {
         isLoading = false;
-        if (null != user) {
-            this.user = user;
-            showUserInfo();
-        }
-        communityMessagePage = page;
-        if (null == messages || messages.isEmpty()) {
-            showEmptyView();
-            return;
-        } else {
-            showDataView(false);
-        }
-        if (null == communityMessageAdapter) {
-            communityMessageAdapter = new CommunityMessageAdapter(this, new CommunityMessageAdapter.OnItemClickListener() {
-                @Override
-                public void onItemClicked(CommunityMessage message) {
-                    Post post = new Post();
-                    post.setId(message.getId());
-                    Intent intent = new Intent(UserCenterActivity.this, PostActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable(getString(R.string.tag_post), post);
-                    intent.putExtras(bundle);
-                    startActivity(intent);
-                }
-            });
-            list.setAdapter(communityMessageAdapter);
-        }
-        if (1 == page.getPage()) {
-            communityMessageAdapter.setData(messages);
-        } else {
-            communityMessageAdapter.addData(messages);
-        }
+        communityMessagePage.clone(page);
+        this.user = user;
+        this.messages = messages;
+        showCommunityMessages();
     }
 
     @Override
     public void onLoadCommunityMessageFailure(String msg) {
         isLoading = false;
-        showMessage(msg, null, null);
-        if (null == communityMessageAdapter) {
-            showEmptyView();
+        if (0 == communityMessagePage.getPage()) {
+            messages = new ArrayList<>();
+            showCommunityMessages();
         }
+        showMessage(msg, null, null);
     }
 
     @Override
     public void onLoadCommunityWorkSuccess(ArrayList<Post> works, User user, Page page) {
         isLoading = false;
-        communityWorkPage = page;
-        if (null == works || works.isEmpty()) {
-            showEmptyView();
-            return;
-        } else {
-            showDataView(false);
-        }
-        if (null == communityWorkAdapter) {
-            communityWorkAdapter = new PostAdapter(this, new PostAdapter.OnItemClickListener() {
-                @Override
-                public void onItemClicked(Post post) {
-                    Intent intent = new Intent(UserCenterActivity.this, PostActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable(getString(R.string.tag_post), post);
-                    intent.putExtras(bundle);
-                    startActivity(intent);
-                }
-
-                @Override
-                public void onUserClicked(User user) {
-                    resetUser(user);
-                }
-            });
-            list.setAdapter(communityWorkAdapter);
-        }
-        if (1 == page.getPage()) {
-            communityWorkAdapter.setData(works);
-        } else {
-            communityWorkAdapter.addData(works);
-        }
+        communityWorkPage.clone(page);
+        this.user = user;
+        this.works = works;
+        showWorks();
     }
 
     @Override
     public void onLoadCommunityWorkFailure(String msg) {
         isLoading = false;
-        showMessage(msg, null, null);
-        if (null == communityWorkAdapter) {
-            showEmptyView();
+        if (0 == communityWorkPage.getPage()) {
+            works = new ArrayList<>();
         }
+        showMessage(msg, null, null);
     }
 
     @Override
     public void onLoadFriendSuccess(ArrayList<MCUser> friends, Page page) {
         isLoading = false;
-        friendPage = page;
-        if (null == friends || friends.isEmpty()) {
-            showEmptyView();
-            return;
-        } else {
-            showDataView(false);
-        }
-        if (null == friendAdapter) {
-            friendAdapter = new FriendAdapter_new(this, new FriendAdapter_new.OnItemClickListener() {
-                @Override
-                public void onItemClicked(MCUser user) {
-                    resetUser(new User(user));
-                }
-
-                @Override
-                public void onChatClicked(MCUser user) {
-                    startChat(user);
-                }
-            });
-            list.setAdapter(friendAdapter);
-        }
-        if (1 == page.getPage()) {
-            friendAdapter.setData(friends);
-        } else {
-            friendAdapter.addData(friends);
-        }
+        friendPage.clone(page);
+        this.friends = friends;
+        showFridnds();
     }
 
     @Override
     public void OnloadFriendFailure(String msg) {
         isLoading = false;
+        if (0 == friendPage.getPage()) {
+            friends = new ArrayList<>();
+            showFridnds();
+        }
         showMessage(msg, null, null);
-        showEmptyView();
     }
 
     @Override
@@ -630,11 +529,128 @@ public class UserCenterActivity extends BaseActivity
 
     @Override
     public void onMoreAsked(int overallItemsCount, int itemsBeforeMore, int maxLastVisiblePosition) {
-        loadData(false);
+        //如果已经是最后一面，则跳出
+        switch (contentTypeId) {
+            case R.id.message:
+                if (communityMessagePage.EOF()) {
+                    showMessage("没有更多了！", null, null);
+                    return;
+                }
+                break;
+            case R.id.dynamic:
+                if (communityDynamicPage.EOF()) {
+                    showMessage("没有更多了！", null, null);
+                    return;
+                }
+                break;
+            case R.id.work:
+                if (communityWorkPage.EOF()) {
+                    showMessage("没有更多了！", null, null);
+                    return;
+                }
+                break;
+            case R.id.friend:
+                if (friendPage.EOF()) {
+                    showMessage("没有更多了！", null, null);
+                    return;
+                }
+                break;
+        }
+        loadData();
     }
 
     @Override
     public void onRefresh() {
-        loadData(true);
+        switch (contentTypeId) {
+            case R.id.message:
+                if (null != communityMessagePage) {
+                    communityMessagePage.setPage(0);
+                }
+                break;
+            case R.id.dynamic:
+                if (null != communityDynamicPage) {
+                    communityDynamicPage.setPage(0);
+                }
+                break;
+            case R.id.work:
+                if (null != communityWorkPage) {
+                    communityWorkPage.setPage(0);
+                }
+                break;
+            case R.id.friend:
+                if (null != friendPage) {
+                    friendPage.setPage(0);
+                }
+                break;
+        }
+        loadData();
+    }
+
+    /**
+     * 作品列表里点击头像的回调
+     * 因不在个人中心中不会设置此处的点击事件，此回调不可能会被触发
+     *
+     * @param user
+     */
+    @Override
+    public void onUserClicked(User user) {
+        //resetUser(user);
+    }
+
+    /**
+     * 作品列表里点击作品的回调
+     * 打开此帖子
+     *
+     * @param post
+     */
+    @Override
+    public void onItemClicked(Post post) {
+        showPostDetailed(post);
+    }
+
+    /**
+     * 好友列表里点击私聊的回调
+     * 打开聊天界面
+     *
+     * @param user
+     */
+    @Override
+    public void onChatClicked(MCUser user) {
+        startChat(user);
+    }
+
+    /**
+     * 好友列表里点击好友的回调
+     * 打开其个人中心
+     *
+     * @param user
+     */
+    @Override
+    public void onItemClicked(MCUser user) {
+        resetUser(new User(user));
+    }
+
+    /**
+     * 动态列表里点击动态的回调
+     * 将打开此帖子
+     *
+     * @param dynamic
+     */
+    @Override
+    public void onItemClicked(CommunityDynamic dynamic) {
+        Post post = new Post(dynamic.getId());
+        showPostDetailed(post);
+    }
+
+    /**
+     * 消息列表点击消息的回调
+     * 打开此帖子
+     *
+     * @param message
+     */
+    @Override
+    public void onItemClicked(CommunityMessage message) {
+        Post post = new Post(message.getId());
+        showPostDetailed(post);
     }
 }

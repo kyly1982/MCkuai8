@@ -33,19 +33,14 @@ public class CommunityDynamicAdapter extends RecyclerView.Adapter<CommunityDynam
         void onItemClicked(CommunityDynamic dynamic);
     }
 
-    public void setData(ArrayList<CommunityDynamic> dynamics){
-        this.dynamics = dynamics;
-        notifyDataSetChanged();
-    }
-
-    public void addData(ArrayList<CommunityDynamic> dynamics){
-        if (null == this.dynamics){
+    public void setData(ArrayList<CommunityDynamic> dynamics,boolean isRefresh){
+        if (null == this.dynamics || isRefresh){
             this.dynamics = dynamics;
             notifyDataSetChanged();
-        } else {
-            int position = this.dynamics.size();
-            dynamics.addAll(dynamics);
-            notifyItemRangeInserted(position,dynamics.size());
+        } else if (null != dynamics){
+            int start = this.dynamics.size();
+            this.dynamics.addAll(dynamics);
+            notifyItemRangeInserted(start,dynamics.size());
         }
     }
 
@@ -53,17 +48,6 @@ public class CommunityDynamicAdapter extends RecyclerView.Adapter<CommunityDynam
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_community_dynamic,parent,false);
         ViewHolder holder = new ViewHolder(view);
-    /*    if (null != listener){
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    CommunityDynamic dynamic = (CommunityDynamic) v.getTag();
-                    if (null != dynamic) {
-                        listener.onItemClicked(dynamic);
-                    }
-                }
-            });
-        }*/
         return holder;
     }
 
