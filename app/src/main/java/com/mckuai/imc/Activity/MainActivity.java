@@ -4,8 +4,6 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -15,9 +13,12 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatTextView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 
@@ -30,8 +31,6 @@ import com.mckuai.imc.Fragment.MainFragment_Video;
 import com.mckuai.imc.R;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.socialize.media.UMImage;
 
@@ -63,6 +62,8 @@ public class MainActivity extends BaseActivity
     private final int LOGIN_SETTING = 1;
     private final int LOGIN_PACKAGE = 2;
 
+//    private boolean isShowNew = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,6 +83,10 @@ public class MainActivity extends BaseActivity
         if (null != fragmentManager && null != fragments) {
             fragmentManager.beginTransaction().show(fragments.get(currentFragmentIndex)).commit();
         }
+
+        if (mApplication.isLogin()){
+            refreshUser();
+        }
     }
 
     /**
@@ -97,6 +102,29 @@ public class MainActivity extends BaseActivity
         toggle.syncState();
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        navigationView.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
+            @Override
+            public void onChildViewAdded(View view, View view1) {
+                Log.e("OHC","onChildViewAdded");
+            }
+
+            @Override
+            public void onChildViewRemoved(View view, View view1) {
+                Log.e("OHC","onChildViewAdded");
+            }
+        });
+
+        navigationView.setOnHoverListener(new View.OnHoverListener() {
+            @Override
+            public boolean onHover(View view, MotionEvent motionEvent) {
+                Log.e("OHC","onHover");
+                return false;
+            }
+        });
+
+
+
 
         View view = navigationView.inflateHeaderView(R.layout.nav_header_base);
         userCover = (AppCompatImageButton) view.findViewById(R.id.slh_userCover);
@@ -174,36 +202,20 @@ public class MainActivity extends BaseActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         item.setChecked(true);
         if (nav_video.isChecked()){
-            switch (item.getItemId()){
+ /*           switch (item.getItemId()){
                 case R.id.action_new:
                     type_new.setVisible(false);
                     type_hot.setVisible(true);
+                    isShowNew = true;
                     break;
                 case R.id.action_hot:
                     type_hot.setVisible(false);
                     type_new.setVisible(true);
+                    isShowNew =false;
                     break;
-            }
+            }*/
             ((MainFragment_Video)fragments.get(1)).setVideoType(item.getItemId());
         }
-       /* switch (item.getItemId()){
-            case R.id.action_hot:
-                break;
-            case R.id.action_new:
-                break;
-            case R.id.action_cartoon:
-                break;
-            case R.id.action_knowledge:
-                break;
-            case R.id.action_map:
-                break;
-            case R.id.action_mod:
-                break;
-            case R.id.action_show:
-                break;
-            case R.id.action_online:
-                break;
-        }*/
         return true;
     }
 
@@ -253,6 +265,17 @@ public class MainActivity extends BaseActivity
             if (0 <= currentFragmentIndex) {
                 transaction.hide(fragments.get(currentFragmentIndex));
             }
+
+
+
+            if (1 == currentFragmentIndex){
+                menu.setGroupVisible(R.id.action_videotype,false);
+                menu.setGroupVisible(R.id.action_ordertype,false);
+            } else if (1 != currentFragmentIndex && R.id.nav_video == checkedId){
+                menu.setGroupVisible(R.id.action_videotype,true);
+                menu.setGroupVisible(R.id.action_ordertype,true);
+            }
+
             switch (checkedId) {
                 case R.id.nav_recommend:
                     MobclickAgent.onEvent(this, "clickCartoon");
@@ -265,7 +288,7 @@ public class MainActivity extends BaseActivity
                     currentFragmentIndex = 1;
                     break;
                 case R.id.nav_chat:
-                    MobclickAgent.onEvent(this, "clickForum");
+                    MobclickAgent.onEvent(this, "clickChat");
                     mTitle.setText("聊天");
                     currentFragmentIndex = 2;
                     break;
@@ -277,6 +300,7 @@ public class MainActivity extends BaseActivity
             }
             transaction.show(fragments.get(currentFragmentIndex)).commit();
         }
+
 
     }
 
@@ -293,29 +317,7 @@ public class MainActivity extends BaseActivity
 
     private void refreshUser(){
         if (mApplication.isLogin()){
-            loader.displayImage(mApplication.user.getHeadImg(), userCover, circleDisplayOption, new ImageLoadingListener() {
-                @Override
-                public void onLoadingStarted(String imageUri, View view) {
-
-                }
-
-                @Override
-                public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-
-                }
-
-                @Override
-                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                    if (null != loadedImage) {
-                        mToolbar.setNavigationIcon(new BitmapDrawable(loadedImage));
-                    }
-                }
-
-                @Override
-                public void onLoadingCancelled(String imageUri, View view) {
-
-                }
-            });
+            loader.displayImage(mApplication.user.getHeadImg(), userCover, circleDisplayOption);
             userName.setText(mApplication.user.getNike());
             userLevel.setText("LV "+mApplication.user.getLevel());
         } else {
@@ -327,14 +329,14 @@ public class MainActivity extends BaseActivity
     }
 
     private void showSearch(){
-        Intent intent = new Intent(this, SearchActivity.class);
+        Intent intent = new Intent(this, UserCenterActivity_new.class);
         intent.putExtra("TYPE",1);
         startActivity(intent);
     }
 
     private void showPackage(){
         if (mApplication.isLogin()){
-            Intent intent = new Intent(this, SearchActivity.class);
+            Intent intent = new Intent(this, UserCenterActivity_new.class);
             Bundle bundle = new Bundle();
 
             bundle.putSerializable("PACKAGE",new User(mApplication.user));

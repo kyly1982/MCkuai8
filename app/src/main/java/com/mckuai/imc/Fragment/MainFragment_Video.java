@@ -70,7 +70,6 @@ public class MainFragment_Video extends BaseFragment implements
     }
 
 
-
     private void initView(){
         listView = (SuperRecyclerView) view.findViewById(R.id.video_list);
 

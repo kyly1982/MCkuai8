@@ -166,7 +166,7 @@ public class UserCenterActivity extends BaseActivity
         Intent intent = getIntent();
         if (null != intent) {
             int userId = intent.getIntExtra(getString(R.string.usercenter_tag_userid), 0);
-            if (mApplication.isLogin() && mApplication.user.getId() == userId) {
+            if (mApplication.isLogin() && 0 == userId) {
                 user = new User(mApplication.user);
             } else {
                 user = new User((long) userId);
