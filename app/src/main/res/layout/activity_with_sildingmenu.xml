@@ -21,7 +21,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:background="@mipmap/bg_slidingmenu"
-        app:menu="@menu/activity_base_drawer"
+        app:menu="@menu/menu_side"
         app:itemTextColor="@color/selector_green_and_white"
         app:itemIconTint="@color/selector_green_and_white"/>
 

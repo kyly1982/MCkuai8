@@ -67,6 +67,7 @@ public class MCNetEngine {
     }
 
     public void exit() {
+        cache.saveCacheFile();
         cancle();
         if (null != cache) {
             cache.saveCacheFile();
@@ -74,9 +75,9 @@ public class MCNetEngine {
     }
 
     public void cancle() {
-        /*if (null != httpClient) {
+        if (null != httpClient) {
             httpClient.cancelAllRequests(true);
-        }*/
+        }
         if (null != client){
             client.dispatcher().cancelAll();
         }

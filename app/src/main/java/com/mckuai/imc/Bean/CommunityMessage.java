@@ -79,25 +79,24 @@ public class CommunityMessage implements Serializable {
     }
 
     public int getTypeEx() {
-        if (isSystemMessage) {
-            return TYPE_SYSTEM;
-        } else if (type.equalsIgnoreCase("at_by_other")) {
-            return TYPE_AT;
-        } else {
-            return TYPE_REPLY;
+        switch (type) {
+            case "at_by_other":
+                return TYPE_AT;
+            case "pub_talk_moderator":
+                return TYPE_SYSTEM;
+            case "digest_talk_moderator":
+                return TYPE_SYSTEM;
+            case "move_talk_moderator":
+                return TYPE_SYSTEM;
+            case "del_talk_moderator":
+                return TYPE_SYSTEM;
+            case "talk_deleted":
+                return TYPE_SYSTEM;
+            case "user_report_talk_success":
+                return TYPE_SYSTEM;
+            default:
+                return TYPE_REPLY;
         }
-        // if (type.equalsIgnoreCase("pub_talk_moderator") ||
-        // type.equalsIgnoreCase("digest_talk_moderator") ||
-        // type.equalsIgnoreCase("move_talk_moderator") ||
-        // type.equalsIgnoreCase("del_talk_moderator") ||
-        // type.equalsIgnoreCase("talk_deleted") ||
-        // type.equalsIgnoreCase("user_report_talk_success"))
-        // {
-        // return TYPE_SYSTEM;
-        // } else
-        // {
-        // return TYPE_AT;
-        // }
     }
 
     public void setType(String type) {

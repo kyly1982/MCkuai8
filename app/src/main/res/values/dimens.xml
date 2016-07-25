@@ -33,6 +33,9 @@
     <dimen name="usercenter_item_community_height">87dp</dimen>
     <dimen name="usercenter_item_friend_height">68dp</dimen>
     <dimen name="usercenter_item_friend_padding">9dp</dimen>
+    <dimen name="usercenter_button_height">43dp</dimen>
+    <dimen name="usercenter_button_weight">86dp</dimen>
+    <dimen name="usercenter_button_radius">21.5dp</dimen>
 
     <!--聊天-->
     <dimen name="conversation_item_height">65dp</dimen>
@@ -56,14 +59,14 @@
 
 
     <dimen name="app_bar_height">180dp</dimen>
-    <dimen name="fab_margin">16dp</dimen>
-    <dimen name="text_margin">16dp</dimen>
 
     <dimen name="item_friend_height">70dp</dimen>
     <dimen name="item_friend_paddingtop">15dp</dimen>
 
     <dimen name="dividerPrimary">5dp</dimen>
     <dimen name="dividerSecondary">1dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="text_margin">16dp</dimen>
 
 
 </resources>

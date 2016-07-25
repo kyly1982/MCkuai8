@@ -79,7 +79,7 @@ public class ForumAdapter extends RecyclerView.Adapter<ForumAdapter.ViewHolder> 
 
         public ViewHolder(View itemView) {
             super(itemView);
-            name = (AppCompatRadioButton) itemView.findViewById(R.id.community_forumname);
+            name = (AppCompatRadioButton) itemView;
         }
     }
 }

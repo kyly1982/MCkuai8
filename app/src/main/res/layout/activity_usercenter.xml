@@ -40,6 +40,25 @@
                 android:paddingTop="2dp"
                 android:text="lv 0"
                 android:textColor="@color/color_white"/>
+            
+            <android.support.v7.widget.AppCompatImageButton
+                android:id="@+id/setting"
+                android:layout_width="@dimen/usercenter_button_height"
+                android:layout_height="@dimen/usercenter_button_height"
+                android:background="@mipmap/ic_setting"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                />
+
+            <android.support.v7.widget.AppCompatImageButton
+                android:id="@+id/share"
+                android:layout_width="@dimen/usercenter_button_height"
+                android:layout_height="@dimen/usercenter_button_height"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:background="@mipmap/ic_share"
+                />
         </RelativeLayout>
 
         <RadioGroup
@@ -47,7 +66,7 @@
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:layout_below="@id/header"
-            android:layout_margin="2dp"
+            android:layout_marginBottom="2dp"
             android:background="@color/colorPrimary"
             android:orientation="horizontal"
             android:padding="2dp">

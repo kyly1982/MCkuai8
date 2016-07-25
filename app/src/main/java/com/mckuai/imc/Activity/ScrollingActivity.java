@@ -9,12 +9,12 @@ import android.view.View;
 
 import com.mckuai.imc.R;
 
-public class SearchActivity2 extends AppCompatActivity {
+public class ScrollingActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_search2);
+        setContentView(R.layout.activity_scrolling);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 

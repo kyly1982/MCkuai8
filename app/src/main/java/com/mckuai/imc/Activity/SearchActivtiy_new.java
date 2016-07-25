@@ -17,7 +17,7 @@ import com.mckuai.imc.R;
 /**
  * Created by kyly on 2016/2/1.
  */
-public class UserCenterActivity_new extends BaseActivity {
+public class SearchActivtiy_new extends BaseActivity {
 
     private MenuItem type_post,type_friend;
     private SuperRecyclerView listview;

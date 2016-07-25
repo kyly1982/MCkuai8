@@ -89,6 +89,12 @@ public class MainActivity extends BaseActivity
         }
     }
 
+    @Override
+    protected void onPause() {
+        mApplication.netEngine.exit();
+        super.onPause();
+    }
+
     /**
      * 设置侧边栏
      */
@@ -143,6 +149,7 @@ public class MainActivity extends BaseActivity
         nav_community = (AppCompatRadioButton) findViewById(R.id.nav_community);
 
         radioGroup.setOnCheckedChangeListener(this);
+        mTitle.setText("推荐");
     }
 
     private void initImageLoader(){
@@ -237,7 +244,8 @@ public class MainActivity extends BaseActivity
                 showPackage();
                 break;
             case R.id.nav_setting:
-                showSetting();
+//                showSetting();
+                startActivity(new Intent(this,ScrollingActivity.class));
                 break;
             case R.id.nav_logout:
                 logout();
@@ -329,14 +337,14 @@ public class MainActivity extends BaseActivity
     }
 
     private void showSearch(){
-        Intent intent = new Intent(this, UserCenterActivity_new.class);
+        Intent intent = new Intent(this, SearchActivtiy_new.class);
         intent.putExtra("TYPE",1);
         startActivity(intent);
     }
 
     private void showPackage(){
         if (mApplication.isLogin()){
-            Intent intent = new Intent(this, UserCenterActivity_new.class);
+            Intent intent = new Intent(this, SearchActivtiy_new.class);
             Bundle bundle = new Bundle();
 
             bundle.putSerializable("PACKAGE",new User(mApplication.user));
@@ -369,7 +377,7 @@ public class MainActivity extends BaseActivity
 
     private void showUserCenter(){
         if (mApplication.isLogin()){
-            Intent intent = new Intent(this,UserCenterActivity.class);
+            Intent intent = new Intent(this,UserCenterActivity2.class);
             startActivity(intent);
         } else {
             callLogin(LOGIN_USERCENTER);
