@@ -209,18 +209,6 @@ public class MainActivity extends BaseActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         item.setChecked(true);
         if (nav_video.isChecked()){
- /*           switch (item.getItemId()){
-                case R.id.action_new:
-                    type_new.setVisible(false);
-                    type_hot.setVisible(true);
-                    isShowNew = true;
-                    break;
-                case R.id.action_hot:
-                    type_hot.setVisible(false);
-                    type_new.setVisible(true);
-                    isShowNew =false;
-                    break;
-            }*/
             ((MainFragment_Video)fragments.get(1)).setVideoType(item.getItemId());
         }
         return true;
@@ -244,8 +232,7 @@ public class MainActivity extends BaseActivity
                 showPackage();
                 break;
             case R.id.nav_setting:
-//                showSetting();
-                startActivity(new Intent(this,ScrollingActivity.class));
+                showSetting();
                 break;
             case R.id.nav_logout:
                 logout();

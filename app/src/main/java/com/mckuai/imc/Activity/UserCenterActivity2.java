@@ -2,6 +2,8 @@ package com.mckuai.imc.Activity;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -10,8 +12,8 @@ import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatTextView;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -82,9 +84,11 @@ public class UserCenterActivity2 extends AppCompatActivity implements View.OnCli
     private AppCompatImageButton setting;
     private RadioGroup subCategory;
     private SuperRecyclerView list;
-    private AppCompatRadioButton message,dynamic;
+    private AppCompatRadioButton message, dynamic;
     private Menu menu;
-    private MenuItem community,friend,addFriend;
+    private MenuItem community, friend, addFriend;
+
+    private LinearLayoutManager layoutManager;
 
     private boolean checkedFriendship = false;
     private boolean isFriendShip = false;
@@ -129,7 +133,26 @@ public class UserCenterActivity2 extends AppCompatActivity implements View.OnCli
         list = (SuperRecyclerView) findViewById(R.id.list);
         setting = (AppCompatImageButton) findViewById(R.id.setting);
 
-        RecyclerView.LayoutManager layoutManager = new StaggeredGridLayoutManager(1,StaggeredGridLayoutManager.VERTICAL);
+        layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        list.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+                int height = getResources().getDimensionPixelOffset(R.dimen.dividerSecondary);
+                outRect.set(0, 0, 0, height);
+            }
+
+            @Override
+            public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+                super.onDraw(c, parent, state);
+                c.drawColor(getResources().getColor(R.color.dividerColorPrimary));
+            }
+
+            @Override
+            public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
+                super.onDrawOver(c, parent, state);
+            }
+        });
+
         list.setLayoutManager(layoutManager);
         list.setLoadingMore(true);
         list.setupMoreListener(this, 1);
@@ -160,16 +183,16 @@ public class UserCenterActivity2 extends AppCompatActivity implements View.OnCli
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_usercenter,menu);
+        getMenuInflater().inflate(R.menu.menu_usercenter, menu);
         if (null != menu) {
             this.menu = menu;
             community = menu.findItem(R.id.action_community);
             friend = menu.findItem(R.id.action_friend);
             addFriend = menu.findItem(R.id.action_addfriend);
-            if (isMySelf()){
-                menu.setGroupVisible(R.id.group_operation,false);
+            if (isMySelf()) {
+                menu.setGroupVisible(R.id.group_operation, false);
             } else {
-                menu.setGroupVisible(R.id.group_operation,true);
+                menu.setGroupVisible(R.id.group_operation, true);
             }
         }
         return true;
@@ -177,16 +200,15 @@ public class UserCenterActivity2 extends AppCompatActivity implements View.OnCli
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.action_community:
                 friend.setVisible(true);
                 community.setVisible(false);
-                if (isMySelf()){
+                if (isMySelf()) {
                     contentTypeId = R.id.message;
                 } else {
                     contentTypeId = R.id.dynamic;
                 }
-
                 subCategory.setVisibility(View.VISIBLE);
                 break;
             case R.id.action_friend:
@@ -202,6 +224,7 @@ public class UserCenterActivity2 extends AppCompatActivity implements View.OnCli
                 startChat(null);
                 return true;
         }
+        list.setAdapter(null);
         showData();
         return super.onOptionsItemSelected(item);
     }
@@ -221,12 +244,12 @@ public class UserCenterActivity2 extends AppCompatActivity implements View.OnCli
     private void changeUIByUser() {
         if (isMySelf()) {
             contentTypeId = R.id.message;//自己，默认显示消息
-            if (null != menu) menu.setGroupVisible(R.id.group_operation,false);
+            if (null != menu) menu.setGroupVisible(R.id.group_operation, false);
             message.setVisibility(View.VISIBLE);
             message.setChecked(true);
         } else {
             contentTypeId = R.id.dynamic;//它人，默认显示动态
-            if (null != menu) menu.setGroupVisible(R.id.group_operation,true);
+            if (null != menu) menu.setGroupVisible(R.id.group_operation, true);
             message.setVisibility(View.GONE);
             dynamic.setChecked(true);
         }
@@ -294,9 +317,18 @@ public class UserCenterActivity2 extends AppCompatActivity implements View.OnCli
             return;
         } else if (null == communityMessageAdapter) {
             communityMessageAdapter = new CommunityMessageAdapter(this, this);
-            list.setAdapter(communityDynamicAdapter);
         }
+        if (null == list.getAdapter()){
+            list.setAdapter(communityMessageAdapter);
+        }/* else if (!(list.getAdapter() instanceof  CommunityMessageAdapter)){
+            //已经设置有其它的adapter，交换adapter并且删除原有的内容
+            list.swapAdapter(communityMessageAdapter,false);
+        }
+        list.setAdapter(communityMessageAdapter);*/
         communityMessageAdapter.setData(messages, 1 == communityMessagePage.getPage());
+        if (1 == communityMessagePage.getPage() && 0 < layoutManager.getChildCount()) {
+            layoutManager.scrollToPosition(0);
+        }
         showUserInfo();
     }
 
@@ -306,9 +338,18 @@ public class UserCenterActivity2 extends AppCompatActivity implements View.OnCli
             return;
         } else if (null == communityDynamicAdapter) {
             communityDynamicAdapter = new CommunityDynamicAdapter(this, this);
-            list.setAdapter(communityDynamicAdapter);
         }
+        if (null == list.getAdapter()){
+            list.setAdapter(communityDynamicAdapter);
+        }/* else if (!(list.getAdapter() instanceof  CommunityDynamicAdapter)){
+            //已经设置有其它的adapter，交换adapter并且删除原有的内容
+            list.swapAdapter(communityDynamicAdapter,false);
+        }
+        list.setAdapter(communityDynamicAdapter);*/
         communityDynamicAdapter.setData(dynamics, 1 == communityDynamicPage.getPage());
+        if (1 == communityDynamicPage.getPage() && 0 < layoutManager.getChildCount()) {
+            layoutManager.scrollToPosition(0);
+        }
         showUserInfo();
     }
 
@@ -318,10 +359,13 @@ public class UserCenterActivity2 extends AppCompatActivity implements View.OnCli
             return;
         } else if (null == communityWorkAdapter) {
             communityWorkAdapter = new PostAdapter(this, this);
+        }
+        if (null == list.getAdapter()) {
             list.setAdapter(communityWorkAdapter);
         }
         if (1 == communityWorkPage.getPage()) {
             communityWorkAdapter.setData(works);
+            layoutManager.scrollToPosition(0);
         } else {
             communityWorkAdapter.addData(works);
         }
@@ -334,9 +378,15 @@ public class UserCenterActivity2 extends AppCompatActivity implements View.OnCli
             return;
         } else if (null == friendAdapter) {
             friendAdapter = new FriendAdapter_new(this, this);
+//            list.setAdapter(friendAdapter);
+        }
+        if (null == list.getAdapter()){
             list.setAdapter(friendAdapter);
         }
         friendAdapter.setData(friends, 1 == friendPage.getPage());
+        if (1 == friendPage.getPage() && 0 < layoutManager.getChildCount()) {
+            layoutManager.scrollToPosition(0);
+        }
         showUserInfo();
     }
 
@@ -397,12 +447,15 @@ public class UserCenterActivity2 extends AppCompatActivity implements View.OnCli
     @Override
     public void onCheckedChanged(RadioGroup group, int checkedId) {
         contentTypeId = checkedId;
-/*        if (checkedId == R.id.community) {
-            subCategory.setVisibility(View.VISIBLE);
-        } else if (checkedId == R.id.friend) {
-            subCategory.setVisibility(View.GONE);
-        }*/
+        list.setAdapter(null);
         showData();
+    }
+
+    private void scrollToFirst() {
+        if (0 < layoutManager.getChildCount()) {
+            layoutManager.scrollToPosition(0);
+            list.setAdapter(null);
+        }
     }
 
     @Override
@@ -431,12 +484,12 @@ public class UserCenterActivity2 extends AppCompatActivity implements View.OnCli
         }
     }
 
-    private void showSetting(){
-        Intent intent = new Intent(this,ProfileEditerActivity.class);
+    private void showSetting() {
+        Intent intent = new Intent(this, ProfileEditerActivity.class);
         startActivity(intent);
     }
 
-    private void share(){
+    private void share() {
 
     }
 
@@ -716,10 +769,10 @@ public class UserCenterActivity2 extends AppCompatActivity implements View.OnCli
         startActivityForResult(intent, requestId);
     }
 
-    public void showMessage(String msg, String action, View.OnClickListener actionClickListener){
-        Snackbar snackbar = Snackbar.make(list,msg ,Snackbar.LENGTH_SHORT);
-        if (null != action && null != actionClickListener){
-            snackbar.setAction(action,actionClickListener).setActionTextColor(getResources().getColor(R.color.msg_normal)).show();
+    public void showMessage(String msg, String action, View.OnClickListener actionClickListener) {
+        Snackbar snackbar = Snackbar.make(list, msg, Snackbar.LENGTH_SHORT);
+        if (null != action && null != actionClickListener) {
+            snackbar.setAction(action, actionClickListener).setActionTextColor(getResources().getColor(R.color.msg_normal)).show();
         }
     }
 

@@ -49,6 +49,8 @@ public class MainFragment_Community extends BaseFragment
     private AppCompatImageButton mCreatePost;
     private RadioGroup postGroup;
 
+    private LinearLayoutManager postLayoutManager;
+
 
 
     public MainFragment_Community() {
@@ -117,8 +119,8 @@ public class MainFragment_Community extends BaseFragment
         mPostList.getRecyclerView().setHasFixedSize(true);
         LinearLayoutManager manager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL,false);
         mForumList.setLayoutManager(manager);
-        LinearLayoutManager manager1  = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL,false);
-        mPostList.setLayoutManager(manager1);
+        postLayoutManager  = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL,false);
+        mPostList.setLayoutManager(postLayoutManager);
         mForumList.setRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -181,6 +183,9 @@ public class MainFragment_Community extends BaseFragment
                 mPostList.setAdapter(postAdapter);
             }
             postAdapter.setData(mPosts);
+            if (1 == page.getPage() && postLayoutManager.getChildCount() > 0){
+                postLayoutManager.scrollToPosition(0);
+            }
         }
     }
 

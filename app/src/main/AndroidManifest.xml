@@ -154,11 +154,6 @@
             android:label="个人中心"
             android:theme="@style/AppTheme">
         </activity>
-        <activity
-            android:name=".Activity.ScrollingActivity"
-            android:label="@string/title_activity_scrolling"
-            android:theme="@style/AppTheme">
-        </activity>
     </application>
 
 </manifest>

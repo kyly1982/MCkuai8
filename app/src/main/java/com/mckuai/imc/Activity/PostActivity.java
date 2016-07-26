@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -60,8 +61,6 @@ public class PostActivity extends BaseActivity implements OnClickListener, TextW
 
 	private String TAG = "PostActivity";
 
-	//private Button btn_showOwner;
-	//private ImageView btn_return;
 	private ImageButton btn_reply;
 	private ImageButton btn_share;
 	private ImageButton btn_collect;
@@ -270,6 +269,13 @@ public class PostActivity extends BaseActivity implements OnClickListener, TextW
 		btn_pic.setOnClickListener(this);
 		edt_content.addTextChangedListener(this);
 
+		((SwipeRefreshLayout)findViewById(R.id.refresh)).setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+			@Override
+			public void onRefresh() {
+				showPost();
+			}
+		});
+
 		tv_hint = (TextView) findViewById(R.id.tv_lengthHint);
 		reply_layout = (RelativeLayout) findViewById(R.id.rl_reply);
 
@@ -354,7 +360,12 @@ public class PostActivity extends BaseActivity implements OnClickListener, TextW
 			webView.loadUrl(url);
 		} else
 		{
-			Toast.makeText(PostActivity.this, "没有获取取帖子信息", Toast.LENGTH_SHORT).show();
+			showMessage("没有获取取帖子信息", "退出", new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					finish();
+				}
+			});
 		}
 	}
 
@@ -1145,7 +1156,7 @@ public class PostActivity extends BaseActivity implements OnClickListener, TextW
 				addInterface();
 				break;
 				case 7:
-					Intent intent = new Intent(PostActivity.this, UserCenterActivity.class);
+					Intent intent = new Intent(PostActivity.this, UserCenterActivity2.class);
 					intent.putExtra(getString(R.string.usercenter_tag_userid),msg.arg1);
 					startActivity(intent);
 					break;

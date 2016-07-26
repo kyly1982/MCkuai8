@@ -46,7 +46,8 @@ public class MainFragment_Video extends BaseFragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (null == view){
-            view = inflater.inflate(R.layout.fragment_video,container,false);
+            listView = (SuperRecyclerView) inflater.inflate(R.layout.fragment_list,container,false);
+            view = listView;
         }
 
         return view;
@@ -55,7 +56,7 @@ public class MainFragment_Video extends BaseFragment implements
     @Override
     public void onResume() {
         super.onResume();
-        if (null != view && null == listView) {
+        if (null != view && null == layoutManager) {
             initView();
         }
     }
@@ -71,8 +72,6 @@ public class MainFragment_Video extends BaseFragment implements
 
 
     private void initView(){
-        listView = (SuperRecyclerView) view.findViewById(R.id.video_list);
-
         layoutManager = new StaggeredGridLayoutManager(1,StaggeredGridLayoutManager.VERTICAL);
         listView.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override

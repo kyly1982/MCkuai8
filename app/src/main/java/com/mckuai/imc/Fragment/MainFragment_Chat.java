@@ -44,7 +44,8 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         if (null == view) {
-            view = inflater.inflate(R.layout.fragment_main_chat, container, false);
+            conversationList = (SuperRecyclerView) inflater.inflate(R.layout.fragment_list, container, false);
+            view = conversationList;
         }
         return view;
     }
@@ -53,7 +54,7 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
     @Override
     public void onResume() {
         super.onResume();
-        if (null != view && null == conversationList) {
+        if (null != view) {
             initView();
         }
     }
@@ -70,11 +71,9 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
     }
 
     private void initView() {
-        conversationList = (SuperRecyclerView) view.findViewById(R.id.conversationlist);
+//        conversationList = (SuperRecyclerView) view.findViewById(R.id.conversationlist);
         conversationList.getRecyclerView().setHasFixedSize(true);
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
-        conversationList.setLayoutManager(manager);
-
         conversationList.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
             public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
@@ -93,6 +92,9 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
                 super.onDrawOver(c, parent, state);
             }
         });
+        conversationList.setLayoutManager(manager);
+
+
 
         conversationList.setRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override

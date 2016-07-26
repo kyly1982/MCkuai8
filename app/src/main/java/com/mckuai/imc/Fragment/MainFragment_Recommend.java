@@ -46,7 +46,9 @@ public class MainFragment_Recommend extends BaseFragment implements SwipeRefresh
     @Override
     public void onResume() {
         super.onResume();
-        initVew();
+        if (null != view && null == layoutManager) {
+            initVew();
+        }
     }
 
     @Override
@@ -59,7 +61,6 @@ public class MainFragment_Recommend extends BaseFragment implements SwipeRefresh
 
     private void initVew(){
         layoutManager = new StaggeredGridLayoutManager(1,StaggeredGridLayoutManager.VERTICAL);
-        listView.setLayoutManager(layoutManager);
         listView.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
             public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
@@ -67,17 +68,21 @@ public class MainFragment_Recommend extends BaseFragment implements SwipeRefresh
                 outRect.set(0,0,0,height);
             }
 
+
             @Override
             public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
                 super.onDraw(c, parent, state);
-                c.drawColor(getResources().getColor(R.color.dividerColorPrimary));
+
             }
 
             @Override
             public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
                 super.onDrawOver(c, parent, state);
+                //c.drawColor(getResources().getColor(R.color.dividerColorPrimary));
             }
         });
+        listView.setLayoutManager(layoutManager);
+        listView.getRecyclerView().setHasFixedSize(true);
         listView.setLoadingMore(false);
         listView.setRefreshListener(this);
     }
