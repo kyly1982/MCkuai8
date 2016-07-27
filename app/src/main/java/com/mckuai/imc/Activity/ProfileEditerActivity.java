@@ -3,6 +3,7 @@ package com.mckuai.imc.Activity;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
+import android.support.v7.widget.AppCompatAutoCompleteTextView;
 import android.support.v7.widget.AppCompatImageView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -11,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.baidu.location.BDLocation;
@@ -31,16 +33,19 @@ public class ProfileEditerActivity extends BaseActivity
 
     private AppCompatImageView userCover;
     private TextInputLayout nickWrapper, addressWrapper;
-    private TextInputEditText nickEdit, addressEdit;
+    private TextInputEditText nickEdit;
+    private AppCompatAutoCompleteTextView addressEdit;
     private View progress;
 
     private ImageLoader loader;
     private DisplayImageOptions circleOption;
     private MCUser user;
 
-    private boolean isUserChange = true;//用于防止设置昵称和城市时触发事件响应
-
     private LocationClient locationClient;
+
+    private boolean isUserChange = true;//用于防止设置昵称和城市时触发事件响应
+    private int status;
+
 
 
 
@@ -64,6 +69,7 @@ public class ProfileEditerActivity extends BaseActivity
             initView();
         }
         showData();
+        location();
     }
 
 
@@ -88,7 +94,7 @@ public class ProfileEditerActivity extends BaseActivity
         nickWrapper = (TextInputLayout) findViewById(R.id.usernick_wrapper);
         addressWrapper = (TextInputLayout) findViewById(R.id.useraddress_wrapper);
         nickEdit = (TextInputEditText) findViewById(R.id.usernick);
-        addressEdit = (TextInputEditText) findViewById(R.id.useraddress);
+        addressEdit = (AppCompatAutoCompleteTextView) findViewById(R.id.useraddress);
         progress = findViewById(R.id.uploadview);
 
         userCover.setFocusable(true);
@@ -130,11 +136,18 @@ public class ProfileEditerActivity extends BaseActivity
             @Override
             public void afterTextChanged(Editable s) {
                 if (isUserChange && 0 == s.length()){
-                    nickEdit.setError("城市不能为空");
+                    addressEdit.setError("城市不能为空");
                 }
             }
         });
+        nickEdit.setOnFocusChangeListener(this);
         addressEdit.setOnFocusChangeListener(this);
+
+
+
+            String[] citys = getResources().getStringArray(R.array.citylist);
+            ArrayAdapter<String> cityAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,citys);
+            addressEdit.setAdapter(cityAdapter);
     }
 
     private void showData(){
@@ -151,8 +164,20 @@ public class ProfileEditerActivity extends BaseActivity
 
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
-        if (hasFocus){
-            location();
+        if (!hasFocus){
+            if (v.getId() == addressEdit.getId()){
+                if (addressEdit.getText().toString().equals(user.getAddr())){
+                    addressEdit.setTextColor(getResources().getColor(R.color.textColorPrimary));
+                } else {
+                    addressEdit.setTextColor(getResources().getColor(R.color.textGreen));
+                }
+            } else if (v.getId() == nickEdit.getId()){
+                if (nickEdit.getText().toString().equals(user.getNike())){
+                    nickEdit.setTextColor(getResources().getColor(R.color.textColorPrimary));
+                } else {
+                    nickEdit.setTextColor(getResources().getColor(R.color.textGreen));
+                }
+            }
         }
     }
 
@@ -170,12 +195,21 @@ public class ProfileEditerActivity extends BaseActivity
 
     @Override
     public void onClick(View v) {
-        this.finish();
+        if (0 < status){
+            showMessage("当前内容还未保存，是否退出？", "退出", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
+                }
+            });
+        }
+
     }
 
     private void location(){
         if (null == locationClient){
             locationClient = new LocationClient(getApplicationContext());
+
             initLocationOption();
             locationClient.registerLocationListener(new BDLocationListener() {
                 @Override
@@ -185,9 +219,12 @@ public class ProfileEditerActivity extends BaseActivity
                             result == BDLocation.TypeNetWorkLocation ||
                             result == BDLocation.TypeOffLineLocation)
                     {
-                        isUserChange = false;
-                        addressEdit.setText(bdLocation.getCity());
-                        isUserChange = true;
+                        if (!addressEdit.getText().toString().equals(bdLocation.getCity())) {
+                            isUserChange = false;
+                            addressEdit.setText(bdLocation.getCity());
+                            addressEdit.setTextColor(getResources().getColor(R.color.textGreen));
+                            isUserChange = true;
+                        }
                     }
                 }
             });

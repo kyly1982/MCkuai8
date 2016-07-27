@@ -43,6 +43,7 @@ android {
     sourceSets {
         main {
             java.srcDirs = ['src/main/java', 'src/main/java-gen']
+            jniLibs.srcDirs = ['libs']
         }
     }
 
@@ -97,6 +98,7 @@ dependencies {
     compile 'de.greenrobot:greendao:2.1.0'
     compile 'com.umeng.analytics:analytics:latest.integration'
     compile 'com.loopj.android:android-async-http:+'
+    compile 'com.yqritc:recyclerview-flexibledivider:1.4.0'
     compile files('libs/BaiduLBS_Android.jar')
     compile files('libs/httpcore-4.4.1.jar')
     compile files('libs/mta-sdk-1.6.2.jar')
