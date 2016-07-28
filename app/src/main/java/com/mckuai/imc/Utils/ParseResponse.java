@@ -7,7 +7,6 @@ import com.mckuai.imc.R;
 import org.json.JSONObject;
 
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 /**
  * Created by kyly on 2016/1/28.
@@ -30,12 +29,6 @@ public class ParseResponse {
         this(context, response, false);
     }
 
-
-    public ParseResponse(Response response, boolean ignoreLength) {
-        if (checkState(response, ignoreLength)) {
-
-        }
-    }
 
     /**
      * 将JSONObject类型的返回数据解析成预处理后的类
@@ -125,10 +118,6 @@ public class ParseResponse {
             msg = context.getString(R.string.error_serverfalse_unknow);
         }
         return false;
-    }
-
-    private boolean setData(ResponseBody body) {
-        return true;
     }
 
     private boolean setData(Context context, JSONObject response) {

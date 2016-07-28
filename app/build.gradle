@@ -7,7 +7,7 @@ android {
     defaultConfig {
         applicationId "com.mckuai.imc"
         minSdkVersion 14
-        targetSdkVersion 23
+        targetSdkVersion 22
         versionCode 50
         versionName "8.0"
     }
@@ -87,6 +87,14 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':IMKit')
+    compile files('libs/BaiduLBS_Android.jar')
+    compile files('libs/httpcore-4.4.1.jar')
+    compile files('libs/mta-sdk-1.6.2.jar')
+    compile files('libs/open_sdk_r5509.jar')
+    compile files('libs/SocialSDK_QQZone_3.jar')
+    compile files('libs/SocialSDK_WeiXin_1.jar')
+    compile files('libs/SocialSDK_WeiXin_2.jar')
+    compile files('libs/umeng_social_sdk.jar')
     compile 'com.android.support:support-v4:23.+'
     compile 'com.android.support:design:23.+'
     compile 'com.android.support:appcompat-v7:23.+'
@@ -99,12 +107,4 @@ dependencies {
     compile 'com.umeng.analytics:analytics:latest.integration'
     compile 'com.loopj.android:android-async-http:+'
     compile 'com.yqritc:recyclerview-flexibledivider:1.4.0'
-    compile files('libs/BaiduLBS_Android.jar')
-    compile files('libs/httpcore-4.4.1.jar')
-    compile files('libs/mta-sdk-1.6.2.jar')
-    compile files('libs/open_sdk_r5509.jar')
-    compile files('libs/SocialSDK_QQZone_3.jar')
-    compile files('libs/SocialSDK_WeiXin_1.jar')
-    compile files('libs/SocialSDK_WeiXin_2.jar')
-    compile files('libs/umeng_social_sdk.jar')
 }

@@ -35,6 +35,8 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -50,13 +52,11 @@ public class MCNetEngine {
     private JsonCache cache;
     AsyncHttpClient httpClient;
     private final String domainName = "http://api.mckuai.com/";
-//    private final String domainName = "http://221.237.152.39:8081/";
+    //    private final String domainName = "http://221.237.152.39:8081/";
 //    private final String domainName = "http://192.168.10.66/";
     private MCDaoHelper daoHelper;
-    private MCKuai application;
 
     public MCNetEngine() {
-        application = MCKuai.instence;
         client = new OkHttpClient();
         httpClient = new AsyncHttpClient();
         httpClient.setTimeout(10);
@@ -78,7 +78,7 @@ public class MCNetEngine {
         if (null != httpClient) {
             httpClient.cancelAllRequests(true);
         }
-        if (null != client){
+        if (null != client) {
             client.dispatcher().cancelAll();
         }
     }
@@ -87,17 +87,18 @@ public class MCNetEngine {
      * 收藏的帖子
      ***************************************************************************/
 
-    public interface OnLoadFavoritesListener{
-        void onLoadFavoritesSuccess(ArrayList<Post> posts,Page page);
+    public interface OnLoadFavoritesListener {
+        void onLoadFavoritesSuccess(ArrayList<Post> posts, Page page);
+
         void OnLoadFavoritesFailure(String msg);
     }
 
-    public void loadFavorites(final Context context,int userId,int page,final OnLoadFavoritesListener listener){
+    public void loadFavorites(final Context context, int userId, int page, final OnLoadFavoritesListener listener) {
         String url = domainName + "interface.do?act=collectTalk";
         RequestParams params = new RequestParams();
         params.put("id", userId);
         params.put("page", page);
-        httpClient.post(url,params,new JsonHttpResponseHandler(){
+        httpClient.post(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onStart() {
 
@@ -105,11 +106,11 @@ public class MCNetEngine {
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                ParseResponse result = new ParseResponse(context,response);
+                ParseResponse result = new ParseResponse(context, response);
                 SearchPost favorites = gson.fromJson(result.msg, SearchPost.class);
-                if (null != favorites){
-                    Page temp = new Page(favorites.getAllCount(),favorites.getPage(),favorites.getPageSize());
-                    listener.onLoadFavoritesSuccess(favorites.getData(),temp);
+                if (null != favorites) {
+                    Page temp = new Page(favorites.getAllCount(), favorites.getPage(), favorites.getPageSize());
+                    listener.onLoadFavoritesSuccess(favorites.getData(), temp);
                 } else {
                     listener.OnLoadFavoritesFailure(context.getString(R.string.error_parsefalse));
                 }
@@ -124,32 +125,34 @@ public class MCNetEngine {
     }
 
     /***************************************************************************
-     *搜索
+     * 搜索
      ***************************************************************************/
 
-    public interface OnSearchListener{
-        void onSearchUserSuccess(ArrayList<MCUser> posts,Page page);
-        void onSearchPostSuccess(ArrayList<Post> posts,Page page);
+    public interface OnSearchListener {
+        void onSearchUserSuccess(ArrayList<MCUser> posts, Page page);
+
+        void onSearchPostSuccess(ArrayList<Post> posts, Page page);
+
         void onSearchFailure(String msg);
     }
 
-    public void search(final Context context, final boolean isSearchPost, String key, final int page, final OnSearchListener listener){
-        String url = domainName +"interface.do?act=search";
+    public void search(final Context context, final boolean isSearchPost, String key, final int page, final OnSearchListener listener) {
+        String url = domainName + "interface.do?act=search";
         RequestParams params = new RequestParams();
         params.put("key", key);
         params.put("type", isSearchPost ? "talk" : "people");
-        httpClient.post(url,params,new JsonHttpResponseHandler(){
+        httpClient.post(url, params, new JsonHttpResponseHandler() {
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 super.onSuccess(statusCode, headers, response);
-                ParseResponse result = new ParseResponse(context,response);
-                if (result.isSuccess){
-                    if (isSearchPost){
+                ParseResponse result = new ParseResponse(context, response);
+                if (result.isSuccess) {
+                    if (isSearchPost) {
                         SearchPost post = gson.fromJson(result.msg, SearchPost.class);
-                        if (null != post){
-                            Page temp = new Page(post.getAllCount(),post.getPage(),post.getPageSize());
-                            listener.onSearchPostSuccess(post.getData(),temp);
+                        if (null != post) {
+                            Page temp = new Page(post.getAllCount(), post.getPage(), post.getPageSize());
+                            listener.onSearchPostSuccess(post.getData(), temp);
                         } else {
                             listener.onSearchFailure(context.getString(R.string.error_parsefalse));
                         }
@@ -157,7 +160,7 @@ public class MCNetEngine {
                         SearchUser user = gson.fromJson(result.msg, SearchUser.class);
                         if (null != user) {
                             Page temp = new Page(user.getAllCount(), user.getPage(), user.getPageSize());
-                            listener.onSearchUserSuccess(user.getData(),temp);
+                            listener.onSearchUserSuccess(user.getData(), temp);
                         } else {
                             listener.onSearchFailure(context.getString(R.string.error_parsefalse));
                         }
@@ -174,21 +177,22 @@ public class MCNetEngine {
 
 
     /***************************************************************************
-     *推荐页接口
+     * 推荐页接口
      ***************************************************************************/
 
-    public interface OnLoadRecommendListener{
+    public interface OnLoadRecommendListener {
         void onLoadRecommendSuccess(ArrayList<Post> recommendList);
+
         void onLoadRecommendFailure(String msg);
     }
 
-    public void loadRecommend(final Context context, int userId, final OnLoadRecommendListener listener){
+    public void loadRecommend(final Context context, int userId, final OnLoadRecommendListener listener) {
         final String url = "http://api.mckuai.com/interface.do?act=indexRec";
         final RequestParams params = new RequestParams();
-        if (0 < userId){
-            params.put("id",userId);
+        if (0 < userId) {
+            params.put("id", userId);
         }
-        httpClient.post(url,params,new JsonHttpResponseHandler(){
+        httpClient.post(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onStart() {
                 if (null != listener) {
@@ -205,10 +209,10 @@ public class MCNetEngine {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 ParseResponse result = new ParseResponse(context, response);
                 if (result.isSuccess) {
-                    Recommend recommend = gson.fromJson(result.msg,Recommend.class);
-                    ArrayList<Post> postList =recommend.getAllPostList();
+                    Recommend recommend = gson.fromJson(result.msg, Recommend.class);
+                    ArrayList<Post> postList = recommend.getAllPostList();
                     listener.onLoadRecommendSuccess(postList);
-                    cache.put(url,params,gson.toJson(postList));
+                    cache.put(url, params, gson.toJson(postList));
                 } else {
                     listener.onLoadRecommendFailure(result.msg);
                 }
@@ -224,25 +228,26 @@ public class MCNetEngine {
     /***************************************************************************
      * 视频
      ***************************************************************************/
-    public interface OnLoadVideoListener{
+    public interface OnLoadVideoListener {
         void onLoadVideoSuccess(VideoBean video);
+
         void onLoadVideoFailure(String msg);
     }
 
-    public void loadVideoList(final Context context, String videoType, String orderType, final int page, final OnLoadVideoListener listener){
+    public void loadVideoList(final Context context, String videoType, String orderType, final int page, final OnLoadVideoListener listener) {
         final String url = "http://api.mckuai.com/interface.do?act=live";
         final RequestParams params = new RequestParams();
-        params.put("forumId",100);//取视频标识
+        params.put("forumId", 100);//取视频标识
         params.put("type", URLEncoder.encode(videoType));
-        params.put("orderField",orderType);
-        params.put("page",page);
-        httpClient.post(url,params,new JsonHttpResponseHandler(){
+        params.put("orderField", orderType);
+        params.put("page", page);
+        httpClient.post(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onStart() {
                 if (1 == page && null != listener) {
                     String result = cache.get(url, params);
-                    if (null != result && result.length() > 10){
-                        VideoBean video = gson.fromJson(result,VideoBean.class);
+                    if (null != result && result.length() > 10) {
+                        VideoBean video = gson.fromJson(result, VideoBean.class);
                         listener.onLoadVideoSuccess(video);
                     }
                 }
@@ -250,10 +255,10 @@ public class MCNetEngine {
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                ParseResponse pr = new ParseResponse(context,response);
-                if (pr.isSuccess){
-                    VideoBean video = gson.fromJson(pr.msg,VideoBean.class);
-                    if (null != video){
+                ParseResponse pr = new ParseResponse(context, response);
+                if (pr.isSuccess) {
+                    VideoBean video = gson.fromJson(pr.msg, VideoBean.class);
+                    if (null != video) {
                         listener.onLoadVideoSuccess(video);
                     } else {
                         listener.onLoadVideoFailure(context.getString(R.string.error_parsefalse));
@@ -290,19 +295,7 @@ public class MCNetEngine {
         params.put("nickName", user.getNike());
         params.put("gender", user.getGender());
         params.put("headImg", user.getHeadImg());
-    /*    Request.Builder builder = new Request.Builder();
-        builder.url(url);
-        client.newCall(builder.build()).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                listener.onLoginFailure(e.getLocalizedMessage());
-            }
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-
-            }
-        });*/
         httpClient.get(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -464,8 +457,7 @@ public class MCNetEngine {
     }
 
     public void uploadImage(final Context context, ArrayList<Bitmap> bitmaps, final OnUploadImageResponseListener listener) {
-//        String url = "http://www.mckuai.com/" + context.getString(R.string.interface_uploadimage);
-        String url = domainName + context.getString(R.string.interface_uploadimage_cartoon);
+        String url = domainName + context.getString(R.string.interface_uploadimage);
         RequestParams params = new RequestParams();
         if (null != bitmaps && !bitmaps.isEmpty()) {
             String fileName = null;
@@ -492,7 +484,6 @@ public class MCNetEngine {
             }
         });
     }
-
 
 
     /***************************************************************************
@@ -554,6 +545,7 @@ public class MCNetEngine {
      ***************************************************************************/
     public interface OnLoadCommunityDynamicResponseListener {
         void onLoadCommunityDynamicSuccess(ArrayList<CommunityDynamic> dynamics, User user, Page page);
+
         void onLoadCommunityDynamicFailure(String msg);
     }
 
@@ -583,7 +575,7 @@ public class MCNetEngine {
                         Page page = new Page(bean.getList().getAllCount(), bean.getList().getPage(), bean.getList().getPageSize());
                         listener.onLoadCommunityDynamicSuccess(bean.getList().getData(), new User(bean.getUser()), page);
                         daoHelper.addUser(bean.getUser());
-                        if (page.getPage() == 1 && application.isLogin() && application.user.getId() == bean.getUser().getId()) {
+                        if (page.getPage() == 1 ) {
                             cache.put(url, params, result.msg);
                         }
                     } else {
@@ -620,8 +612,8 @@ public class MCNetEngine {
         httpClient.post(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onStart() {
-                String result = cache.get(url,params);
-                if (null != result && result.length() > 10){
+                String result = cache.get(url, params);
+                if (null != result && result.length() > 10) {
                     CommunityWorkBean bean = gson.fromJson(result, CommunityWorkBean.class);
                     Page page = new Page(bean.getList().getAllCount(), bean.getList().getPage(), bean.getList().getPageSize());
                     listener.onLoadCommunityWorkSuccess(bean.getList().getdata(), bean.getUser(), page);
@@ -707,7 +699,7 @@ public class MCNetEngine {
                 String result = cache.get(url, params);
                 if (null != url && result.length() > 10) {
                     FriendBean bean = gson.fromJson(result, FriendBean.class);
-                    listener.onLoadFriendSuccess(bean.getData(), new Page(20,1,20));
+                    listener.onLoadFriendSuccess(bean.getData(), new Page(20, 1, 20));
                 }
             }
 
@@ -749,13 +741,13 @@ public class MCNetEngine {
      * 上传头像图片
      ***************************************************************************/
 
-    public interface OnUploadUserCoverResponseListener {
+    public interface OnUploadUserCoverListener {
         void onUploadCoverSuccess(String url);
 
         void onUploadCoverFailure(String msg);
     }
 
-    public void uploadUserCover(final Context context, Bitmap cover, final OnUploadUserCoverResponseListener listener) {
+    public void uploadUserCover(final Context context, Bitmap cover, final OnUploadUserCoverListener listener) {
         String url = "http://www.mckuai.com/" + context.getString(R.string.interface_uploadimage);
         RequestParams params = new RequestParams();
         params.put("fileHeadImg", Bitmap2IS(cover), "cover.jpg", "image/jpeg");
@@ -777,20 +769,53 @@ public class MCNetEngine {
         });
     }
 
+    public void uploadUserCover(final Context context, String fileName, final OnUploadUserCoverListener listener) {
+        String url = "http://www.mckuai.com/" + context.getString(R.string.interface_uploadimage);
+        File file = new File(fileName);
+        if (null != file && file.exists() && file.isFile()) {
+            RequestParams params = new RequestParams();
+            try {
+                params.put("fileHeadImg", file, "image/jpeg");
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                listener.onUploadCoverFailure(e.getLocalizedMessage());
+                return;
+            }
+            httpClient.post(url, params, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    ParseResponse result = new ParseResponse(context, response);
+                    if (result.isSuccess) {
+                        listener.onUploadCoverSuccess(result.msg);
+                    } else {
+                        listener.onUploadCoverFailure(result.msg);
+                    }
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                    listener.onUploadCoverFailure(throwable.getLocalizedMessage());
+                }
+            });
+
+        }
+
+    }
+
     /***************************************************************************
      * 更新头像url
      ***************************************************************************/
 
-    public interface OnUpdateUserCoverResponseListener {
+    public interface OnUpdateUserCoverListener {
         void onUpdateUserCoverSuccess();
 
         void onUpdateUserCoverFailure(String msg);
     }
 
-    public void updateUserCover(final Context context, String coverUrl, final OnUpdateUserCoverResponseListener listener) {
+    public void updateUserCover(final Context context, int userId, String coverUrl, final OnUpdateUserCoverListener listener) {
         String url = domainName + context.getString(R.string.interface_update_userinfo);
         RequestParams params = new RequestParams();
-        params.put("userId", MCKuai.instence.user.getId());
+        params.put("userId", userId);
         params.put("flag", "headImg");
         params.put("headImg", coverUrl);
         httpClient.post(url, params, new JsonHttpResponseHandler() {
@@ -815,16 +840,16 @@ public class MCNetEngine {
      * 更新昵称
      ***************************************************************************/
 
-    public interface OnUpdateUserNickResponseListener {
+    public interface OnUpdateUserNickListener {
         void onUpdateUserNickSuccess();
 
         void onUpdateUserNickFailure(String msg);
     }
 
-    public void updateNickName(final Context context, String nick, final OnUpdateUserNickResponseListener listener) {
+    public void updateUserNick(final Context context, int userId, String nick, final OnUpdateUserNickListener listener) {
         String url = domainName + context.getString(R.string.interface_update_userinfo);
         RequestParams params = new RequestParams();
-        params.put("userId", MCKuai.instence.user.getId());
+        params.put("userId", userId);
         params.put("flag", "name");
         params.put("nickName", nick);
         httpClient.post(url, params, new JsonHttpResponseHandler() {
@@ -855,10 +880,10 @@ public class MCNetEngine {
         void onUpdateAddressFailure(String msg);
     }
 
-    public void updateUserAddress(final Context context, String address, final OnUpdateUserAddressResponseListener listener) {
+    public void updateUserAddress(final Context context,int userId ,String address, final OnUpdateUserAddressResponseListener listener) {
         String url = domainName + context.getString(R.string.interface_updateLocation);
         RequestParams params = new RequestParams();
-        params.put("id", MCKuai.instence.user.getId());
+        params.put("id", userId);
         params.put("addr", address);
         httpClient.post(url, params, new JsonHttpResponseHandler() {
             @Override
@@ -898,7 +923,7 @@ public class MCNetEngine {
             @Override
             public void onStart() {
                 String result = cache.get(finalUrl);
-                if (null != result && result.length() >10){
+                if (null != result && result.length() > 10) {
                     ArrayList<User> users = gson.fromJson(result, new TypeToken<ArrayList<User>>() {
                     }.getType());
                     listener.onLoadUserSuccess(users);
@@ -913,10 +938,10 @@ public class MCNetEngine {
                     ArrayList<User> users = gson.fromJson(result.msg, new TypeToken<ArrayList<User>>() {
                     }.getType());
                     listener.onLoadUserSuccess(users);
-                    for (User user:users){
+                    for (User user : users) {
                         daoHelper.addUser(user);
                     }
-                    cache.put(finalUrl,result.msg);
+                    cache.put(finalUrl, result.msg);
                 } else {
                     listener.onLoadUserFailure(result.msg);
                 }

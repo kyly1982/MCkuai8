@@ -64,7 +64,6 @@
     <string name="interface_replyfloor">interface.do?act=replyTalk</string>
     <!-- 上传图片 回图片路径字符串  http://cdn.mckuai.com/xxx.jpg 需加在content 帖子内容后面 -->
     <string name="interface_uploadimage">group.do?act=uploadImg</string>
-    <string name="interface_uploadimage_cartoon">interface.do?act=uploadCartoonImg</string>
     <string name="interface_uploadpost">interface.do?act=addTalk</string>
     <!-- 是否打赏或收藏 -->
     <string name="interface_getpostmark">interface.do?act=isCollect</string>
@@ -263,4 +262,8 @@
         "For example, position the FAB to one side of stream of a cards so the FAB won’t interfere "
         "when a user tries to pick up one of cards.\n\n"
     </string>
+
+    <string name="title_activity_start">StartActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>

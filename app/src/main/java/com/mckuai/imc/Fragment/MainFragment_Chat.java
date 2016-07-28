@@ -33,6 +33,7 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
     private ConversationAdapter adapter;
 
     public MainFragment_Chat() {
+        mTitle = "聊天";
     }
 
     @Override

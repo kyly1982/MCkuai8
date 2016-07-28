@@ -54,7 +54,7 @@ public class MainFragment_Community extends BaseFragment
 
 
     public MainFragment_Community() {
-
+        mTitle = "社区";
     }
 
     @Override

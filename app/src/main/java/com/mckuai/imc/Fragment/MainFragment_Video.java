@@ -40,7 +40,11 @@ public class MainFragment_Video extends BaseFragment implements
     private ArrayList<Post> posts;
 
     private String orderType = "new";
-    public  String videoType = "动画";
+    public  String videoType = "动画";//默认显示动画的
+
+    public MainFragment_Video() {
+        mTitle = "聊天";
+    }
 
     @Nullable
     @Override

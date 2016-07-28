@@ -92,6 +92,7 @@ public class MainActivity extends BaseActivity
     @Override
     protected void onPause() {
         mApplication.netEngine.exit();
+        mApplication.saveProfile();
         super.onPause();
     }
 
@@ -319,7 +320,6 @@ public class MainActivity extends BaseActivity
             userCover.setImageResource(R.mipmap.ic_usercover_default);
             userName.setText("未登录");
             userLevel.setText("点击头像登录");
-            mToolbar.setNavigationIcon(R.mipmap.ic_usercover_default);
         }
     }
 

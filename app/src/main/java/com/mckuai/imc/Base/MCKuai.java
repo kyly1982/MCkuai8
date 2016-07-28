@@ -75,7 +75,7 @@ public class MCKuai extends Application {
     public void onCreate() {
         super.onCreate();
         instence = this;
-        init();
+//        init();
     }
 
 

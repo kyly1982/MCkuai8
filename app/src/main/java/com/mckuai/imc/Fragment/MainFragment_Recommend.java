@@ -33,6 +33,10 @@ public class MainFragment_Recommend extends BaseFragment implements SwipeRefresh
 
     private ArrayList<Post> posts;
 
+    public MainFragment_Recommend() {
+        mTitle = "推荐";
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -72,13 +76,12 @@ public class MainFragment_Recommend extends BaseFragment implements SwipeRefresh
             @Override
             public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
                 super.onDraw(c, parent, state);
-
+                c.drawColor(getResources().getColor(R.color.dividerColorPrimary));
             }
 
             @Override
             public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
                 super.onDrawOver(c, parent, state);
-                //c.drawColor(getResources().getColor(R.color.dividerColorPrimary));
             }
         });
         listView.setLayoutManager(layoutManager);
