@@ -143,7 +143,7 @@
                     android:checked="true"
                     android:gravity="center"
                     android:text="@string/message"
-                    android:textColor="@color/selector_white_and_grey"
+                    android:textColor="@drawable/selector_white_and_grey"
                     android:textSize="11sp"/>
 
 
@@ -156,7 +156,7 @@
                     android:button="@null"
                     android:gravity="center"
                     android:text="@string/dynamic"
-                    android:textColor="@color/selector_white_and_grey"
+                    android:textColor="@drawable/selector_white_and_grey"
                     android:textSize="11sp"/>
 
 
@@ -169,7 +169,7 @@
                     android:button="@null"
                     android:gravity="center"
                     android:text="@string/work"
-                    android:textColor="@color/selector_white_and_grey"
+                    android:textColor="@drawable/selector_white_and_grey"
                     android:textSize="11sp"/>
 
             </RadioGroup>

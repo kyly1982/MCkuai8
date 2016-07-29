@@ -85,7 +85,7 @@
                 android:checked="true"
                 android:gravity="center"
                 android:text="@string/community"
-                android:textColor="@color/selector_white_and_grey"/>
+                android:textColor="@drawable/selector_white_and_grey"/>
 
             <View
                 android:layout_width="0dp"
@@ -100,7 +100,7 @@
                 android:button="@null"
                 android:gravity="center"
                 android:text="@string/friend"
-                android:textColor="@color/selector_white_and_grey"/>
+                android:textColor="@drawable/selector_white_and_grey"/>
 
             <View
                 android:id="@+id/space_right"
@@ -133,7 +133,7 @@
                 android:checked="true"
                 android:gravity="center"
                 android:text="@string/message"
-                android:textColor="@color/selector_white_and_grey"
+                android:textColor="@drawable/selector_white_and_grey"
                 android:textSize="11sp"/>
 
             <View
@@ -149,7 +149,7 @@
                 android:button="@null"
                 android:gravity="center"
                 android:text="@string/dynamic"
-                android:textColor="@color/selector_white_and_grey"
+                android:textColor="@drawable/selector_white_and_grey"
                 android:textSize="11sp"/>
 
             <View
@@ -165,7 +165,7 @@
                 android:button="@null"
                 android:gravity="center"
                 android:text="@string/work"
-                android:textColor="@color/selector_white_and_grey"
+                android:textColor="@drawable/selector_white_and_grey"
                 android:textSize="11sp"/>
 
             <View

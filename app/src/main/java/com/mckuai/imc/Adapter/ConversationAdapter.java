@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 
 import com.mckuai.imc.Base.MCKuai;
 import com.mckuai.imc.Bean.Conversation;
+import com.mckuai.imc.Bean.User;
 import com.mckuai.imc.R;
 import com.mckuai.imc.Utils.TimestampConverter;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -36,6 +37,18 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     public void setData(ArrayList<Conversation> conversations) {
         this.conversations = conversations;
         notifyDataSetChanged();
+    }
+
+    public void refreshItem(User user){
+        if (null != conversations && !conversations.isEmpty()){
+            for (int i = 0;i < conversations.size();i++){
+                if (conversations.get(i).getTarget().getId() == user.getId()){
+                    conversations.get(i).setTarget(user);
+                    notifyItemChanged(i);
+                    break;
+                }
+            }
+        }
     }
 
 

@@ -21,6 +21,7 @@ import com.mckuai.imc.Base.MCKuai;
 import com.mckuai.imc.Bean.Conversation;
 import com.mckuai.imc.Bean.User;
 import com.mckuai.imc.R;
+import com.mckuai.imc.Utils.MCNetEngine;
 
 import java.util.ArrayList;
 
@@ -67,7 +68,7 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
             initView();
         }
         if (!hidden) {
-            showData();
+            showData(false);
         }
     }
 
@@ -107,8 +108,8 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
         });
     }
 
-    private void showData() {
-        if (null != conversations) {
+    private void showData(boolean isRefresh) {
+        if (null != conversations && !isRefresh) {
             if (null == adapter) {
                 adapter = new ConversationAdapter(getActivity(), this);
                 conversationList.setAdapter(adapter);
@@ -141,7 +142,19 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
                             tempUser = new User();
                             tempUser.setName(id);
                             conversation.setTarget(tempUser);
+                            mApplication.netEngine.loadUserInfo(getActivity(), id, new MCNetEngine.OnLoadUserInfoResponseListener() {
+                                @Override
+                                public void onLoadUserInfoSuccess(User user) {
+                                    if (null != user) {
+                                        updateUserInfo(user);
+                                    }
+                                }
 
+                                @Override
+                                public void onLoadUserInfoFailure(String msg) {
+
+                                }
+                            });
                         } else {
                             conversation.setTarget(tempUser);
                         }
@@ -184,7 +197,7 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
         } else {
             showMessage("聊天服务故障，请重新启动软件！", null, null);
         }
-        showData();
+        showData(false);
     }
 
     private void callLogin(int requestcode) {
@@ -200,13 +213,19 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
 
 
     private void updateUserInfo(User user) {
+        if (null != adapter && null != user){
+            adapter.refreshItem(user);
+        }
         for (int i = 0; i < conversations.size(); i++) {
             User tempUser = conversations.get(i).getTarget();
             if (tempUser.getId() == user.getId()) {
                 tempUser.update(user);
-                if (null != adapter) {
+                break;
+                /*if (null != adapter) {
+                    adapter.refreshItem(user);
+                    adapter.setData(conversations);
                     adapter.notifyItemChanged(i);
-                }
+                }*/
             }
         }
     }
@@ -218,7 +237,7 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
         if (resultCode == Activity.RESULT_OK) {
             switch (requestCode) {
                 case 0:
-                    showData();
+                    showData(false);
                     break;
            /*     case 1:
                     onItemClicked(user);
@@ -234,7 +253,7 @@ public class MainFragment_Chat extends BaseFragment implements ConversationAdapt
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                showData();
+                showData(true);
             }
         });
     }

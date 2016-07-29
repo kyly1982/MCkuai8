@@ -7,10 +7,10 @@
     <color name="textColorPrimary_Light">#FFFFFFFF</color>
     <color name="textColorSecondary">#B4B4B4</color>
     <color name="textColorSecondary_Dark">#66FFFFFF</color>
+    <color name="textHint">#B2B0AE</color>
     <color name="textColorAccentr">#31b765</color>
     <color name="textGreen">#38CA44</color>
     <color name="textAccent">#FFFFFF</color>
-    <color name="textHint">#B2B0AE</color>
     <color name="textColorWhite">#FFFFFF</color>
 
     <!--snackbar动作文本色彩-->

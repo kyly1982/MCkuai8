@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 
@@ -29,6 +30,7 @@ import com.mckuai.imc.Fragment.MainFragment_Community;
 import com.mckuai.imc.Fragment.MainFragment_Recommend;
 import com.mckuai.imc.Fragment.MainFragment_Video;
 import com.mckuai.imc.R;
+import com.mckuai.imc.Utils.MCNetEngine;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.umeng.analytics.MobclickAgent;
@@ -36,16 +38,27 @@ import com.umeng.socialize.media.UMImage;
 
 import java.util.ArrayList;
 
+import io.rong.imkit.RongIM;
+import io.rong.imlib.RongIMClient;
+import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.Message;
+import io.rong.imlib.model.UserInfo;
+
 public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener,View.OnClickListener,
-        RadioGroup.OnCheckedChangeListener{
+        RadioGroup.OnCheckedChangeListener,
+        RongIMClient.OnReceiveMessageListener,
+        RongIM.OnReceiveUnreadCountChangedListener,
+        RongIM.UserInfoProvider
+{
 
     private DrawerLayout slidingView;
     private AppCompatImageButton userCover;
     private AppCompatTextView userName;
     private AppCompatTextView userLevel;
     private RadioGroup radioGroup;
-    private AppCompatRadioButton nav_recommend,nav_video,nav_chat,nav_community;
+    private AppCompatRadioButton nav_video,nav_chat;
+    private View msgIndicator;
 
     private ImageLoader loader;
     private DisplayImageOptions circleDisplayOption;
@@ -78,6 +91,7 @@ public class MainActivity extends BaseActivity
             initView();
             initImageLoader();
             initFragment();
+            initIMListener();
         }
 
         if (null != fragmentManager && null != fragments) {
@@ -144,19 +158,39 @@ public class MainActivity extends BaseActivity
 
     private void initView(){
         radioGroup = (RadioGroup) findViewById(R.id.nav);
-        nav_recommend = (AppCompatRadioButton) findViewById(R.id.nav_recommend);
         nav_video = (AppCompatRadioButton) findViewById(R.id.nav_video);
         nav_chat = (AppCompatRadioButton) findViewById(R.id.nav_chat);
-        nav_community = (AppCompatRadioButton) findViewById(R.id.nav_community);
+        msgIndicator = findViewById(R.id.msgIndicator);
 
         radioGroup.setOnCheckedChangeListener(this);
         mTitle.setText("推荐");
+
+        ViewTreeObserver vto = nav_chat.getViewTreeObserver();
+        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) msgIndicator.getLayoutParams();
+                layoutParams.leftMargin = nav_chat.getRight() - msgIndicator.getWidth() - (nav_chat.getWidth() / 5);
+                layoutParams.topMargin = nav_chat.getHeight() / 10;
+                msgIndicator.setLayoutParams(layoutParams);
+                msgIndicator.postInvalidate();
+                nav_chat.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+            }
+        });
     }
 
     private void initImageLoader(){
         if (null == loader){
             loader = ImageLoader.getInstance();
             circleDisplayOption = mApplication.getCircleOptions();
+        }
+    }
+
+    private void initIMListener(){
+        if (RongIM.getInstance() != null && RongIM.getInstance().getRongIMClient() != null) {
+            RongIM.setUserInfoProvider(this, true);
+            RongIM.setOnReceiveMessageListener(this);
+            RongIM.getInstance().setOnReceiveUnreadCountChangedListener(this, Conversation.ConversationType.PRIVATE);
         }
     }
 
@@ -311,6 +345,55 @@ public class MainActivity extends BaseActivity
         }
     }
 
+    @Override
+    public boolean onReceived(Message message, int i) {
+        if (null != message)
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    checkUnReadMsg();
+                    ((MainFragment_Chat) fragments.get(1)).onNewMsgRecived();
+                }
+
+            });
+        return false;
+    }
+
+    @Override
+    public void onMessageIncreased(int i) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                checkUnReadMsg();
+            }
+        });
+    }
+
+    @Override
+    public UserInfo getUserInfo(String id) {
+        if (id.equals(mApplication.user.getName())) {
+            UserInfo userInfo = new UserInfo(id, mApplication.user.getNike(), Uri.parse(mApplication.user.getHeadImg()));
+            return userInfo;
+        }
+        User user = mApplication.daoHelper.getUserByName(id);
+        if (null == user) {
+            mApplication.netEngine.loadUserInfo(this, id, new MCNetEngine.OnLoadUserInfoResponseListener() {
+                @Override
+                public void onLoadUserInfoSuccess(User user) {
+                }
+
+                @Override
+                public void onLoadUserInfoFailure(String msg) {
+                    showMessage(msg, null, null);
+                }
+            });
+            return null;
+        } else {
+            UserInfo userInfo = new UserInfo(id, user.getNickEx(), Uri.parse(user.getHeadImage()));
+            return userInfo;
+        }
+    }
+
     private void refreshUser(){
         if (mApplication.isLogin()){
             loader.displayImage(mApplication.user.getHeadImg(), userCover, circleDisplayOption);
@@ -404,6 +487,24 @@ public class MainActivity extends BaseActivity
     private void closeSlidingMenu(){
         if (null != slidingView){
             slidingView.closeDrawer(GravityCompat.START);
+        }
+    }
+
+    private void checkUnReadMsg() {
+        if (RongIM.getInstance() != null && RongIM.getInstance().getRongIMClient() != null && RongIM.getInstance().getRongIMClient().getCurrentConnectionStatus() == RongIMClient.ConnectionStatusListener.ConnectionStatus.CONNECTED) {
+            switch (RongIM.getInstance().getRongIMClient().getTotalUnreadCount()) {
+                case 0:
+                    if (null != msgIndicator) {
+                        msgIndicator.setVisibility(View.GONE);
+                    }
+                    break;
+                default:
+                    if (null != msgIndicator) {
+                        msgIndicator.setVisibility(View.VISIBLE);
+                        msgIndicator.postInvalidate();
+                    }
+                    break;
+            }
         }
     }
 

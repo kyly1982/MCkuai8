@@ -22,8 +22,8 @@
         android:layout_gravity="start"
         android:background="@mipmap/bg_slidingmenu"
         app:menu="@menu/menu_side"
-        app:itemTextColor="@color/selector_green_and_white"
-        app:itemIconTint="@color/selector_green_and_white"/>
+        app:itemTextColor="@drawable/selector_green_and_white"
+        app:itemIconTint="@drawable/selector_green_and_white"/>
 
 </android.support.v4.widget.DrawerLayout>
 

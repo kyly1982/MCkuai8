@@ -78,12 +78,22 @@
 
         </RadioGroup>
 
+    <View
+        android:id="@+id/msgIndicator"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:visibility="invisible"
+        android:background="@drawable/ic_circle_red"
+        android:layout_alignTop="@id/nav"/>
+
     <RelativeLayout
         android:id="@+id/fragment_content"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_alignParentTop="true"
         android:layout_above="@id/nav"
-        ></RelativeLayout>
+        >
+
+    </RelativeLayout>
 
 </RelativeLayout>
